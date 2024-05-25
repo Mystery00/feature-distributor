@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service CoreService {
+  rpc checkProject(CheckProjectRequest) returns (CheckProjectResponse);
+}
+
+message CheckProjectRequest{
+  optional string serverKey = 1;
+  optional string clientKey = 2;
+}
+
+message CheckProjectResponse{
+  bool isProjectExist = 1;
+  optional int64 projectId = 2;
+  optional string projectKey = 3;
+  optional string projectName = 4;
+}

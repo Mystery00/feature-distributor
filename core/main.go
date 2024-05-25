@@ -1,46 +1,29 @@
 package main
 
 import (
-	"context"
-	"errors"
+	"feature-distributor/core/db"
+	"feature-distributor/core/grpc"
 	"feature-distributor/env"
 	"feature-distributor/logger"
-	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"net/http"
 	"os"
 	"os/signal"
-	"time"
 )
 
 func main() {
 	log := logrus.WithField("source", "main")
 
-	runPort, exist := os.LookupEnv(env.EnvRunPort)
+	address, exist := os.LookupEnv(env.EnvListenAddress)
 	if !exist {
-		runPort = "9090"
+		address = ":7001"
 	}
 	logger.InitLog()
-
-	gin.DisableConsoleColor()
-	gin.SetMode(gin.ReleaseMode)
-
-	router := gin.New()
-	router.ForwardedByClientIP = true
-	//middleware.SetMiddleware(router)
-	//health.Handle(router)
-	//proxy.Handle(router)
-
-	srv := &http.Server{
-		Addr:    fmt.Sprintf(`:%s`, runPort),
-		Handler: router,
-	}
+	db.InitDatabase()
 
 	go func() {
-		log.Infof(`Server is running at :%s`, runPort)
+		log.Infof(`Server is running at %s`, address)
 		// 服务连接
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err := grpc.Run(address); err != nil {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
@@ -49,12 +32,5 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Shutdown Server ...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
-	}
 	log.Println("Server exiting")
 }

@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="gen db" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="feature-distributor" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="feature-distributor/gen" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/gen/gen.go" />
+    <method v="2" />
+  </configuration>
+</component>
