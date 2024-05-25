@@ -1,11 +1,10 @@
 package logger
 
 import (
-	"feature-distributor/env"
+	"feature-distributor/common/env"
 	"fmt"
 	"github.com/Mystery00/lumberjack"
 	nested "github.com/antonfisher/nested-logrus-formatter"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"io"
@@ -78,8 +77,6 @@ func InitLog() {
 			logger: consoleLogger,
 		})
 	}
-	gin.DefaultWriter = out
-	gin.DefaultErrorWriter = out
 }
 
 type logHook struct {

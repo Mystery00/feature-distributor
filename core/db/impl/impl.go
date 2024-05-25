@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"feature-distributor/env"
+	"feature-distributor/common/env"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )

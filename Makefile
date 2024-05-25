@@ -1,6 +1,6 @@
 gen-pb-server:
-	protoc --go_opt=Mprotobuf/project.proto=pb/ \
+	protoc --go_opt=Mcommon/protobuf/project.proto=pb/ \
 		--go_out=core/ \
-		--go-grpc_opt=Mprotobuf/project.proto=pb/ \
+		--go-grpc_opt=Mcommon/protobuf/project.proto=pb/ \
 		--go-grpc_out=core/ \
-		protobuf/project.proto
+		common/protobuf/project.proto

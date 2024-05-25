@@ -1,10 +1,10 @@
 package main
 
 import (
+	"feature-distributor/common/env"
+	"feature-distributor/common/logger"
 	"feature-distributor/core/db"
 	"feature-distributor/core/grpc"
-	"feature-distributor/env"
-	"feature-distributor/logger"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
