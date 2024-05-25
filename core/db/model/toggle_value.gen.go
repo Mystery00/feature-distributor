@@ -12,8 +12,8 @@ const TableNameToggleValue = "toggle_value"
 
 // ToggleValue mapped from table <toggle_value>
 type ToggleValue struct {
-	ID          int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	ToggleID    int32     `gorm:"column:toggle_id;not null" json:"toggle_id"`
+	ID          int64     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	ToggleID    int64     `gorm:"column:toggle_id;not null" json:"toggle_id"`
 	Title       string    `gorm:"column:title;not null" json:"title"`
 	Value       string    `gorm:"column:value;not null" json:"value"`
 	Description string    `gorm:"column:description;not null" json:"description"`

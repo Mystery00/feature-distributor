@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"feature-distributor/core/model"
+	"feature-distributor/core/db/model"
 )
 
 func newToggleValue(db *gorm.DB, opts ...gen.DOOption) toggleValue {
@@ -27,8 +27,8 @@ func newToggleValue(db *gorm.DB, opts ...gen.DOOption) toggleValue {
 
 	tableName := _toggleValue.toggleValueDo.TableName()
 	_toggleValue.ALL = field.NewAsterisk(tableName)
-	_toggleValue.ID = field.NewInt32(tableName, "id")
-	_toggleValue.ToggleID = field.NewInt32(tableName, "toggle_id")
+	_toggleValue.ID = field.NewInt64(tableName, "id")
+	_toggleValue.ToggleID = field.NewInt64(tableName, "toggle_id")
 	_toggleValue.Title = field.NewString(tableName, "title")
 	_toggleValue.Value = field.NewString(tableName, "value")
 	_toggleValue.Description = field.NewString(tableName, "description")
@@ -40,11 +40,11 @@ func newToggleValue(db *gorm.DB, opts ...gen.DOOption) toggleValue {
 }
 
 type toggleValue struct {
-	toggleValueDo toggleValueDo
+	toggleValueDo
 
 	ALL         field.Asterisk
-	ID          field.Int32
-	ToggleID    field.Int32
+	ID          field.Int64
+	ToggleID    field.Int64
 	Title       field.String
 	Value       field.String
 	Description field.String
@@ -65,8 +65,8 @@ func (t toggleValue) As(alias string) *toggleValue {
 
 func (t *toggleValue) updateTableName(table string) *toggleValue {
 	t.ALL = field.NewAsterisk(table)
-	t.ID = field.NewInt32(table, "id")
-	t.ToggleID = field.NewInt32(table, "toggle_id")
+	t.ID = field.NewInt64(table, "id")
+	t.ToggleID = field.NewInt64(table, "toggle_id")
 	t.Title = field.NewString(table, "title")
 	t.Value = field.NewString(table, "value")
 	t.Description = field.NewString(table, "description")
@@ -76,16 +76,6 @@ func (t *toggleValue) updateTableName(table string) *toggleValue {
 
 	return t
 }
-
-func (t *toggleValue) WithContext(ctx context.Context) IToggleValueDo {
-	return t.toggleValueDo.WithContext(ctx)
-}
-
-func (t toggleValue) TableName() string { return t.toggleValueDo.TableName() }
-
-func (t toggleValue) Alias() string { return t.toggleValueDo.Alias() }
-
-func (t toggleValue) Columns(cols ...field.Expr) gen.Columns { return t.toggleValueDo.Columns(cols...) }
 
 func (t *toggleValue) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := t.fieldMap[fieldName]

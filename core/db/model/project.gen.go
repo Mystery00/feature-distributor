@@ -12,7 +12,7 @@ const TableNameProject = "project"
 
 // Project mapped from table <project>
 type Project struct {
-	ID         int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	ID         int64     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	Name       string    `gorm:"column:name;not null" json:"name"`
 	Key        string    `gorm:"column:key;not null" json:"key"`
 	ServerKey  string    `gorm:"column:server_key;not null" json:"server_key"`

@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"feature-distributor/core/model"
+	"feature-distributor/core/db/model"
 )
 
 func newToggle(db *gorm.DB, opts ...gen.DOOption) toggle {
@@ -27,14 +27,15 @@ func newToggle(db *gorm.DB, opts ...gen.DOOption) toggle {
 
 	tableName := _toggle.toggleDo.TableName()
 	_toggle.ALL = field.NewAsterisk(tableName)
-	_toggle.ID = field.NewInt32(tableName, "id")
-	_toggle.ProjectID = field.NewInt32(tableName, "project_id")
+	_toggle.ID = field.NewInt64(tableName, "id")
+	_toggle.ProjectID = field.NewInt64(tableName, "project_id")
+	_toggle.Enable = field.NewBool(tableName, "enable")
 	_toggle.Title = field.NewString(tableName, "title")
 	_toggle.Key = field.NewString(tableName, "key")
 	_toggle.Description = field.NewString(tableName, "description")
-	_toggle.ValueType = field.NewInt32(tableName, "value_type")
-	_toggle.DefaultValue = field.NewInt32(tableName, "default_value")
-	_toggle.ReturnValueWhenDisable = field.NewInt32(tableName, "return_value_when_disable")
+	_toggle.ValueType = field.NewInt8(tableName, "value_type")
+	_toggle.DefaultValue = field.NewInt64(tableName, "default_value")
+	_toggle.ReturnValueWhenDisable = field.NewInt64(tableName, "return_value_when_disable")
 	_toggle.CreateTime = field.NewTime(tableName, "create_time")
 	_toggle.UpdateTime = field.NewTime(tableName, "update_time")
 
@@ -44,17 +45,18 @@ func newToggle(db *gorm.DB, opts ...gen.DOOption) toggle {
 }
 
 type toggle struct {
-	toggleDo toggleDo
+	toggleDo
 
 	ALL                    field.Asterisk
-	ID                     field.Int32
-	ProjectID              field.Int32
+	ID                     field.Int64
+	ProjectID              field.Int64
+	Enable                 field.Bool
 	Title                  field.String
 	Key                    field.String
 	Description            field.String
-	ValueType              field.Int32
-	DefaultValue           field.Int32
-	ReturnValueWhenDisable field.Int32
+	ValueType              field.Int8
+	DefaultValue           field.Int64
+	ReturnValueWhenDisable field.Int64
 	CreateTime             field.Time
 	UpdateTime             field.Time
 
@@ -73,14 +75,15 @@ func (t toggle) As(alias string) *toggle {
 
 func (t *toggle) updateTableName(table string) *toggle {
 	t.ALL = field.NewAsterisk(table)
-	t.ID = field.NewInt32(table, "id")
-	t.ProjectID = field.NewInt32(table, "project_id")
+	t.ID = field.NewInt64(table, "id")
+	t.ProjectID = field.NewInt64(table, "project_id")
+	t.Enable = field.NewBool(table, "enable")
 	t.Title = field.NewString(table, "title")
 	t.Key = field.NewString(table, "key")
 	t.Description = field.NewString(table, "description")
-	t.ValueType = field.NewInt32(table, "value_type")
-	t.DefaultValue = field.NewInt32(table, "default_value")
-	t.ReturnValueWhenDisable = field.NewInt32(table, "return_value_when_disable")
+	t.ValueType = field.NewInt8(table, "value_type")
+	t.DefaultValue = field.NewInt64(table, "default_value")
+	t.ReturnValueWhenDisable = field.NewInt64(table, "return_value_when_disable")
 	t.CreateTime = field.NewTime(table, "create_time")
 	t.UpdateTime = field.NewTime(table, "update_time")
 
@@ -88,14 +91,6 @@ func (t *toggle) updateTableName(table string) *toggle {
 
 	return t
 }
-
-func (t *toggle) WithContext(ctx context.Context) IToggleDo { return t.toggleDo.WithContext(ctx) }
-
-func (t toggle) TableName() string { return t.toggleDo.TableName() }
-
-func (t toggle) Alias() string { return t.toggleDo.Alias() }
-
-func (t toggle) Columns(cols ...field.Expr) gen.Columns { return t.toggleDo.Columns(cols...) }
 
 func (t *toggle) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := t.fieldMap[fieldName]
@@ -107,9 +102,10 @@ func (t *toggle) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (t *toggle) fillFieldMap() {
-	t.fieldMap = make(map[string]field.Expr, 10)
+	t.fieldMap = make(map[string]field.Expr, 11)
 	t.fieldMap["id"] = t.ID
 	t.fieldMap["project_id"] = t.ProjectID
+	t.fieldMap["enable"] = t.Enable
 	t.fieldMap["title"] = t.Title
 	t.fieldMap["key"] = t.Key
 	t.fieldMap["description"] = t.Description
