@@ -12,7 +12,9 @@ import (
 func InitDatabase() {
 	dialector := impl.InitDb()
 	client, err := gorm.Open(dialector, &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{SingularTable: true},
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
 	})
 	if err != nil {
 		panic(err)
