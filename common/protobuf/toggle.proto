@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+service ToggleService {
+  rpc GetBoolToggle(BoolToggleRequest) returns (BoolToggleResponse);
+  rpc GetStringToggle(StringToggleRequest) returns (StringToggleResponse);
+  rpc GetFloatToggle(FloatToggleRequest) returns (FloatToggleResponse);
+  rpc GetIntToggle(IntToggleRequest) returns (IntToggleResponse);
+  rpc GetJsonToggle(JsonToggleRequest) returns (JsonToggleResponse);
+}
+
+message BoolToggleRequest{
+  ReqUser reqUser = 1;
+  string projectKey = 2;
+  string toggleKey = 3;
+  bool defaultValue = 4;
+}
+
+message BoolToggleResponse{
+  string toggleKey = 1;
+  bool resultValue = 2;
+}
+
+message StringToggleRequest{
+  ReqUser reqUser = 1;
+  string projectKey = 2;
+  string toggleKey = 3;
+  string defaultValue = 4;
+}
+
+message StringToggleResponse{
+  string toggleKey = 1;
+  string resultValue = 2;
+}
+
+message FloatToggleRequest{
+  ReqUser reqUser = 1;
+  string projectKey = 2;
+  string toggleKey = 3;
+  float defaultValue = 4;
+}
+
+message FloatToggleResponse{
+  string toggleKey = 1;
+  float resultValue = 2;
+}
+
+message IntToggleRequest{
+  ReqUser reqUser = 1;
+  string projectKey = 2;
+  string toggleKey = 3;
+  int64 defaultValue = 4;
+}
+
+message IntToggleResponse{
+  string toggleKey = 1;
+  int64 resultValue = 2;
+}
+
+message JsonToggleRequest{
+  ReqUser reqUser = 1;
+  string projectKey = 2;
+  string toggleKey = 3;
+  string defaultValue = 4;
+}
+
+message JsonToggleResponse{
+  string toggleKey = 1;
+  string resultValue = 2;
+}
+
+message ReqUser {
+  string rolloutKey = 1;
+  map<string,string> attributes = 2;
+}

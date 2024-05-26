@@ -8,20 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type Server struct {
+type CoreServer struct {
 	pb.UnimplementedCoreServiceServer
 }
 
-func (s *Server) CheckProject(ctx context.Context, in *pb.CheckProjectRequest) (*pb.CheckProjectResponse, error) {
+func (s *CoreServer) CheckProject(ctx context.Context, in *pb.CheckProjectRequest) (*pb.CheckProjectResponse, error) {
 	if in.ClientKey == nil && in.ServerKey == nil {
 		return nil, errors.New("invalid params")
 	}
 	p := query.Project
 	pc := p.WithContext(ctx)
 	if in.ClientKey != nil {
-		pc = pc.Where(p.ClientKey.Eq(*in.ClientKey))
+		pc = pc.Where(p.ClientKey.Eq(in.GetClientKey()))
 	} else if in.ServerKey != nil {
-		pc = pc.Where(p.ServerKey.Eq(*in.ServerKey))
+		pc = pc.Where(p.ServerKey.Eq(in.GetServerKey()))
 	}
 	project, err := pc.First()
 	if err != nil {

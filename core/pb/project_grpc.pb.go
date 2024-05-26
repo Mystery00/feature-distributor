@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CoreService_CheckProject_FullMethodName = "/CoreService/checkProject"
+	CoreService_CheckProject_FullMethodName = "/CoreService/CheckProject"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -100,7 +100,7 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CoreServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "checkProject",
+			MethodName: "CheckProject",
 			Handler:    _CoreService_CheckProject_Handler,
 		},
 	},

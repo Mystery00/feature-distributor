@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"feature-distributor/core/db"
-	"feature-distributor/core/db/model"
 	"feature-distributor/core/db/query"
 	"fmt"
 	"github.com/open-feature/go-sdk/openfeature"
@@ -12,8 +11,11 @@ import (
 	"strconv"
 )
 
+func Init() error {
+	return openfeature.SetProvider(CoreProvider{})
+}
+
 type CoreProvider struct {
-	project model.Project
 }
 
 func (i CoreProvider) Metadata() openfeature.Metadata {
@@ -24,14 +26,6 @@ func (i CoreProvider) Metadata() openfeature.Metadata {
 
 func (i CoreProvider) Hooks() []openfeature.Hook {
 	return []openfeature.Hook{}
-}
-
-// resolutionError 逻辑出错时的详情信息
-func resolutionError(err error) openfeature.ProviderResolutionDetail {
-	return openfeature.ProviderResolutionDetail{
-		ResolutionError: openfeature.NewGeneralResolutionError(fmt.Sprintf("failed to get value, %v", err)),
-		Reason:          openfeature.UnknownReason,
-	}
 }
 
 // resolutionStatic 没有动态规则时的详情信息
@@ -55,16 +49,31 @@ func resolutionDisable() openfeature.ProviderResolutionDetail {
 	}
 }
 
-func genericResolve[T comparable](ctx context.Context, projectId int64, toggleKey string, defaultValue T, m func(string) (T, error)) (T, openfeature.ProviderResolutionDetail) {
-	toggle, toggleValues, err := db.SelectToggleValues(ctx, projectId, toggleKey)
+func genericResolve[T comparable](ctx context.Context, evalCtx openfeature.FlattenedContext, toggleKey string, defaultValue T, m func(string) (T, error)) (T, openfeature.ProviderResolutionDetail) {
+	projectKey := evalCtx[openfeature.TargetingKey].(string)
+	p := query.Project
+	project, err := p.Where(p.Key.Eq(projectKey)).First()
 	if err != nil {
-		return defaultValue, resolutionError(errors.Wrap(err, "select toggle value failed"))
+		return defaultValue, openfeature.ProviderResolutionDetail{
+			ResolutionError: openfeature.NewInvalidContextResolutionError(fmt.Sprintf("failed to get project, %v", err)),
+			Reason:          openfeature.UnknownReason,
+		}
+	}
+	toggle, toggleValues, err := db.SelectToggleValues(ctx, project.ID, toggleKey)
+	if err != nil {
+		return defaultValue, openfeature.ProviderResolutionDetail{
+			ResolutionError: openfeature.NewGeneralResolutionError(fmt.Sprintf("failed to get value, %v", err)),
+			Reason:          openfeature.UnknownReason,
+		}
 	}
 	valueMap := make(map[int64]T)
 	for _, value := range toggleValues {
 		vv, err := m(value.Value)
 		if err != nil {
-			return defaultValue, resolutionError(errors.Wrap(err, fmt.Sprintf("convert value failed with %s", value.Value)))
+			return defaultValue, openfeature.ProviderResolutionDetail{
+				ResolutionError: openfeature.NewParseErrorResolutionError(fmt.Sprintf("parse value failed, %v", err)),
+				Reason:          openfeature.ErrorReason,
+			}
 		}
 		valueMap[value.ID] = vv
 	}
@@ -75,7 +84,7 @@ func genericResolve[T comparable](ctx context.Context, projectId int64, toggleKe
 }
 
 func (i CoreProvider) BooleanEvaluation(ctx context.Context, flag string, defaultValue bool, evalCtx openfeature.FlattenedContext) openfeature.BoolResolutionDetail {
-	v, r := genericResolve(ctx, i.project.ID, flag, defaultValue, func(s string) (bool, error) {
+	v, r := genericResolve(ctx, evalCtx, flag, defaultValue, func(s string) (bool, error) {
 		switch s {
 		case "true":
 			return true, nil
@@ -92,7 +101,7 @@ func (i CoreProvider) BooleanEvaluation(ctx context.Context, flag string, defaul
 }
 
 func (i CoreProvider) StringEvaluation(ctx context.Context, flag string, defaultValue string, evalCtx openfeature.FlattenedContext) openfeature.StringResolutionDetail {
-	v, r := genericResolve(ctx, i.project.ID, flag, defaultValue, func(s string) (string, error) {
+	v, r := genericResolve(ctx, evalCtx, flag, defaultValue, func(s string) (string, error) {
 		return s, nil
 	})
 	return openfeature.StringResolutionDetail{
@@ -102,7 +111,7 @@ func (i CoreProvider) StringEvaluation(ctx context.Context, flag string, default
 }
 
 func (i CoreProvider) FloatEvaluation(ctx context.Context, flag string, defaultValue float64, evalCtx openfeature.FlattenedContext) openfeature.FloatResolutionDetail {
-	v, r := genericResolve(ctx, i.project.ID, flag, defaultValue, func(s string) (float64, error) {
+	v, r := genericResolve(ctx, evalCtx, flag, defaultValue, func(s string) (float64, error) {
 		return strconv.ParseFloat(s, 64)
 	})
 	return openfeature.FloatResolutionDetail{
@@ -112,7 +121,7 @@ func (i CoreProvider) FloatEvaluation(ctx context.Context, flag string, defaultV
 }
 
 func (i CoreProvider) IntEvaluation(ctx context.Context, flag string, defaultValue int64, evalCtx openfeature.FlattenedContext) openfeature.IntResolutionDetail {
-	v, r := genericResolve(ctx, i.project.ID, flag, defaultValue, func(s string) (int64, error) {
+	v, r := genericResolve(ctx, evalCtx, flag, defaultValue, func(s string) (int64, error) {
 		return strconv.ParseInt(s, 10, 64)
 	})
 	return openfeature.IntResolutionDetail{
@@ -122,7 +131,7 @@ func (i CoreProvider) IntEvaluation(ctx context.Context, flag string, defaultVal
 }
 
 func (i CoreProvider) ObjectEvaluation(ctx context.Context, flag string, defaultValue interface{}, evalCtx openfeature.FlattenedContext) openfeature.InterfaceResolutionDetail {
-	v, r := genericResolve(ctx, i.project.ID, flag, defaultValue, func(s string) (interface{}, error) {
+	v, r := genericResolve(ctx, evalCtx, flag, defaultValue, func(s string) (interface{}, error) {
 		m := make(map[string]interface{})
 		err := json.Unmarshal([]byte(s), &m)
 		return m, err
@@ -134,12 +143,6 @@ func (i CoreProvider) ObjectEvaluation(ctx context.Context, flag string, default
 }
 
 func (i CoreProvider) Init(evaluationContext openfeature.EvaluationContext) error {
-	p := query.Project
-	project, err := p.Where(p.Key.Eq(evaluationContext.TargetingKey())).First()
-	if err != nil {
-		return err
-	}
-	i.project = *project
 	return nil
 }
 

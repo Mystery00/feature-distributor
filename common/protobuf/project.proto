@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 service CoreService {
-  rpc checkProject(CheckProjectRequest) returns (CheckProjectResponse);
+  rpc CheckProject(CheckProjectRequest) returns (CheckProjectResponse);
 }
 
 message CheckProjectRequest{

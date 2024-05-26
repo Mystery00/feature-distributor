@@ -5,6 +5,7 @@ import (
 	"feature-distributor/common/logger"
 	"feature-distributor/core/db"
 	"feature-distributor/core/grpc"
+	"feature-distributor/core/provider"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
@@ -19,9 +20,13 @@ func main() {
 	}
 	logger.InitLog()
 	db.InitDatabase()
+	err := provider.Init()
+	if err != nil {
+		log.Fatalf("failed to init provider: %v", err)
+	}
 
 	go func() {
-		log.Infof(`Server is running at %s`, address)
+		log.Infof(`CoreServer is running at %s`, address)
 		// 服务连接
 		if err := grpc.Run(address); err != nil {
 			log.Fatalf("listen: %s\n", err)
@@ -32,5 +37,5 @@ func main() {
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Server exiting")
+	log.Println("CoreServer exiting")
 }
