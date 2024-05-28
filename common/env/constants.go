@@ -23,3 +23,7 @@ const (
 	DbPort = "db.port"
 	DbName = "db.name"
 )
+
+const (
+	GrpcAddress = "grpc.address"
+)

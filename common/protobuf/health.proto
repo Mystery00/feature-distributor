@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+service HealthService{
+  rpc CheckHealth(CheckHealthRequest) returns (CheckHealthResponse);
+}
+
+message CheckHealthRequest{
+}
+
+message CheckHealthResponse{
+  bool success = 1;
+}

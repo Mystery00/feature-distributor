@@ -12,6 +12,7 @@ func Run(addr string) error {
 		return err
 	}
 	server := grpc.NewServer()
+	pb.RegisterHealthServiceServer(server, &HealthServer{})
 	pb.RegisterCoreServiceServer(server, &CoreServer{})
 	pb.RegisterToggleServiceServer(server, &ToggleServer{})
 	return server.Serve(lis)
