@@ -3,7 +3,7 @@
     <module name="feature-distributor" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
-    <package value="feature-distributor/gen" />
+    <package value="feature-distributor/common/gen" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/gen/gen.go" />
     <method v="2" />
