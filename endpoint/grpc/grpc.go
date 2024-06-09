@@ -10,6 +10,7 @@ import (
 
 var connection *rpc.ClientConn
 var toggleClient pb.ToggleServiceClient
+var userClient pb.UserServiceClient
 
 func Init() {
 	address := viper.GetString(env.GrpcAddress)
@@ -18,11 +19,16 @@ func Init() {
 		panic(err)
 	}
 	connection = conn
+	userClient = pb.NewUserServiceClient(conn)
 	toggleClient = pb.NewToggleServiceClient(conn)
 }
 
 func Close() error {
 	return connection.Close()
+}
+
+func GetUserClient() pb.UserServiceClient {
+	return userClient
 }
 
 func GetToggleClient() pb.ToggleServiceClient {

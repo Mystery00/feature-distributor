@@ -25,5 +25,11 @@ const (
 )
 
 const (
+	RedisAddress  = "redis.address"
+	RedisPassword = "redis.password"
+	RedisPrefix   = "redis.prefix"
+)
+
+const (
 	GrpcAddress = "grpc.address"
 )

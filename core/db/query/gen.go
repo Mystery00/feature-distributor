@@ -20,6 +20,7 @@ var (
 	Project     *project
 	Toggle      *toggle
 	ToggleValue *toggleValue
+	User        *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -27,6 +28,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Project = &Q.Project
 	Toggle = &Q.Toggle
 	ToggleValue = &Q.ToggleValue
+	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -35,6 +37,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Project:     newProject(db, opts...),
 		Toggle:      newToggle(db, opts...),
 		ToggleValue: newToggleValue(db, opts...),
+		User:        newUser(db, opts...),
 	}
 }
 
@@ -44,6 +47,7 @@ type Query struct {
 	Project     project
 	Toggle      toggle
 	ToggleValue toggleValue
+	User        user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -54,6 +58,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Project:     q.Project.clone(db),
 		Toggle:      q.Toggle.clone(db),
 		ToggleValue: q.ToggleValue.clone(db),
+		User:        q.User.clone(db),
 	}
 }
 
@@ -71,6 +76,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Project:     q.Project.replaceDB(db),
 		Toggle:      q.Toggle.replaceDB(db),
 		ToggleValue: q.ToggleValue.replaceDB(db),
+		User:        q.User.replaceDB(db),
 	}
 }
 
@@ -78,6 +84,7 @@ type queryCtx struct {
 	Project     IProjectDo
 	Toggle      IToggleDo
 	ToggleValue IToggleValueDo
+	User        IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -85,6 +92,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Project:     q.Project.WithContext(ctx),
 		Toggle:      q.Toggle.WithContext(ctx),
 		ToggleValue: q.ToggleValue.WithContext(ctx),
+		User:        q.User.WithContext(ctx),
 	}
 }
 

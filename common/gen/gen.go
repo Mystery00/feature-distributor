@@ -16,6 +16,9 @@ func main() {
 	g.UseDB(gormdb)
 
 	g.ApplyBasic(
+		g.GenerateModel("user",
+			gen.FieldType("id", "int64"),
+		),
 		g.GenerateModel("project",
 			gen.FieldType("id", "int64"),
 		),
