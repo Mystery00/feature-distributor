@@ -22,42 +22,43 @@ func isWhiteUri(uri string) bool {
 	return false
 }
 
-var adminSessionMiddleware gin.HandlerFunc = func(context *gin.Context) {
-	if isWhiteUri(context.Request.RequestURI) {
-		context.Next()
+var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
+	if isWhiteUri(c.Request.RequestURI) {
+		c.Next()
 		return
 	}
-	authorization := context.Request.Header.Get("Authorization")
+	authorization := c.Request.Header.Get("Authorization")
 	if authorization == "" {
-		context.JSON(401, gin.H{
+		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
-		context.Abort()
+		c.Abort()
 		return
 	}
 	key := fmt.Sprintf("session:%s", authorization)
-	value, err := redis.Get(context.Request.Context(), key)
+	value, err := redis.Get(c.Request.Context(), key)
 	if err != nil {
-		context.JSON(500, gin.H{
+		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
-		context.Abort()
+		c.Abort()
 		return
 	}
 	if value == nil {
-		context.JSON(401, gin.H{
+		c.JSON(401, gin.H{
 			"message": "Unauthorized",
 		})
-		context.Abort()
+		c.Abort()
 		return
 	}
-	err = redis.Expire(context.Request.Context(), key, constants.UserSessionExpire)
+	err = redis.Expire(c.Request.Context(), key, constants.UserSessionExpire)
 	if err != nil {
-		context.JSON(500, gin.H{
+		c.JSON(500, gin.H{
 			"message": err.Error(),
 		})
-		context.Abort()
+		c.Abort()
 		return
 	}
-	context.Next()
+	c.Set("username", *value)
+	c.Next()
 }

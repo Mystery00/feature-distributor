@@ -8,7 +8,6 @@ import (
 	"feature-distributor/endpoint/middleware"
 	"feature-distributor/endpoint/redis"
 	"feature-distributor/endpoint/web"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -34,7 +33,6 @@ func main() {
 
 	router := gin.New()
 	router.ForwardedByClientIP = true
-	router.Use(cors.Default())
 	middleware.SetMiddleware(router)
 	web.Handle(router)
 

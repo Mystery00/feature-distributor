@@ -7,4 +7,5 @@ import (
 func Handle(engine *gin.RouterGroup) {
 	engine.POST("/login/v1", login)
 	engine.DELETE("/logout/v1", logout)
+	engine.GET("/me/v1", me)
 }
