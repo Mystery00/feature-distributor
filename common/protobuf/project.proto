@@ -1,7 +1,30 @@
 syntax = "proto3";
 
 service CoreService {
+  rpc ListProjects(PageRequest) returns (ProjectPageResponse);
   rpc CheckProject(CheckProjectRequest) returns (CheckProjectResponse);
+  rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
+  rpc SaveProject(SaveProjectRequest) returns (GetProjectResponse);
+}
+
+message Project{
+  int64 id = 1;
+  string name = 2;
+  string key = 3;
+  string serverKey = 4;
+  string clientKey = 5;
+  int64 createTime = 6;
+  int64 updateTime = 7;
+}
+
+message PageRequest{
+  int64 index = 1;
+  int64 size = 2;
+}
+
+message ProjectPageResponse{
+  int64 total = 1;
+  repeated Project projects = 2;
 }
 
 message CheckProjectRequest{
@@ -10,8 +33,19 @@ message CheckProjectRequest{
 }
 
 message CheckProjectResponse{
-  bool isProjectExist = 1;
-  optional int64 projectId = 2;
-  optional string projectKey = 3;
-  optional string projectName = 4;
+  optional Project project = 1;
+}
+
+message GetProjectRequest{
+  int64 id = 1;
+}
+
+message GetProjectResponse{
+  optional Project project = 1;
+}
+
+message SaveProjectRequest{
+  optional int64 projectId = 1;
+  string name = 2;
+  string key = 3;
 }

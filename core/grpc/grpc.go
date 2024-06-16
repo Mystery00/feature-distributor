@@ -1,17 +1,28 @@
 package grpc
 
 import (
+	"feature-distributor/common/logger"
 	"feature-distributor/core/pb"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
 )
 
 func Run(addr string) error {
+	log := logrus.WithField("source", "grpc")
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
-	server := grpc.NewServer()
+	opts := []logging.Option{
+		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall),
+	}
+	server := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logging.UnaryServerInterceptor(logger.InterceptorLogger(log), opts...),
+		),
+	)
 	pb.RegisterHealthServiceServer(server, &HealthServer{})
 	pb.RegisterUserServiceServer(server, &UserServer{})
 	pb.RegisterCoreServiceServer(server, &CoreServer{})

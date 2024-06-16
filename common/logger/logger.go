@@ -68,6 +68,7 @@ func InitLog() {
 		HideKeys:        true,
 		NoColors:        !showColor,
 		ShowFullLevel:   false,
+		FieldsOrder:     []string{"source"},
 	})
 	//添加钩子
 	consoleLogger := logrus.New()
