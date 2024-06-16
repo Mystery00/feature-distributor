@@ -67,6 +67,9 @@ func (s *CoreServer) GetProject(ctx context.Context, in *pb.GetProjectRequest) (
 	pc := p.WithContext(ctx)
 	project, err := pc.Where(p.ID.Eq(in.GetId())).First()
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, alert.Error(alert.ProjectNotExist)
+		}
 		return nil, err
 	}
 	return &pb.GetProjectResponse{
@@ -88,7 +91,7 @@ func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest)
 	project = &model.Project{
 		Name:      in.GetName(),
 		Key:       in.GetKey(),
-		ServerKey: generateKey(in.GetKey(), "server"),
+		ServerKey: generateKey(in.GetKey(), "toggle"),
 		ClientKey: generateKey(in.GetKey(), "client"),
 	}
 	err = pc.Save(project)

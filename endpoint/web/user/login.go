@@ -19,33 +19,33 @@ type LoginReq struct {
 	Password string `json:"password" required:"true" binding:"required"`
 }
 
-var login gin.HandlerFunc = func(context *gin.Context) {
+var login gin.HandlerFunc = func(c *gin.Context) {
 	var req LoginReq
-	if err := context.ShouldBindJSON(&req); err != nil {
-		context.JSON(400, gin.H{"message": err.Error()})
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 	client := grpc.GetUserClient()
-	response, err := client.CheckLogin(context.Request.Context(), &pb.CheckLoginRequest{
+	response, err := client.CheckLogin(c.Request.Context(), &pb.CheckLoginRequest{
 		Username: req.Username,
 		Password: req.Password,
 	})
 	if err != nil {
-		context.JSON(500, gin.H{"message": err.Error()})
+		grpc.HandleGRPCError(c, err)
 		return
 	}
 	if response.GetCode() != http.StatusOK {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "username or password is incorrect"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "username or password is incorrect"})
 		return
 	}
 	token := generateRandomString(req.Username)
 	key := fmt.Sprintf("session:%s", token)
-	err = redis.Set(context.Request.Context(), key, req.Username, constants.UserSessionExpire)
+	err = redis.Set(c.Request.Context(), key, req.Username, constants.UserSessionExpire)
 	if err != nil {
-		context.JSON(500, gin.H{"message": err.Error()})
+		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
-	context.JSON(int(response.GetCode()), gin.H{
+	c.JSON(int(response.GetCode()), gin.H{
 		"token":   token,
 		"message": "ok",
 	})

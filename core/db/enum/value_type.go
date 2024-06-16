@@ -20,6 +20,40 @@ func (ValueType) Values() []ValueType {
 	}
 }
 
+func ParseValueType(s string) ValueType {
+	switch s {
+	case "BOOL":
+		return BoolValueType
+	case "STRING":
+		return StringValueType
+	case "FLOAT":
+		return FloatValueType
+	case "INT":
+		return IntValueType
+	case "JSON":
+		return JsonValueType
+	default:
+		panic("unknown value type")
+	}
+}
+
+func (v ValueType) String() string {
+	switch v {
+	case BoolValueType:
+		return "BOOL"
+	case StringValueType:
+		return "STRING"
+	case FloatValueType:
+		return "FLOAT"
+	case IntValueType:
+		return "INT"
+	case JsonValueType:
+		return "JSON"
+	default:
+		panic("unknown value type")
+	}
+}
+
 func ValueTypeEnum(v int8) ValueType {
 	switch v {
 	case 1:

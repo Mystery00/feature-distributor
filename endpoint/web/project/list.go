@@ -11,20 +11,20 @@ type page struct {
 	Size  int `form:"size" required:"true" binding:"required"`
 }
 
-var list gin.HandlerFunc = func(context *gin.Context) {
+var list gin.HandlerFunc = func(c *gin.Context) {
 	var p page
-	err := context.ShouldBindQuery(&p)
+	err := c.ShouldBindQuery(&p)
 	if err != nil {
-		context.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 	client := grpc.GetCoreClient()
-	response, err := client.ListProjects(context.Request.Context(), &pb.PageRequest{
+	response, err := client.ListProjects(c.Request.Context(), &pb.PageRequest{
 		Index: int64(p.Index),
 		Size:  int64(p.Size),
 	})
 	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
+		grpc.HandleGRPCError(c, err)
 		return
 	}
 	resultList := make([]gin.H, 0, len(response.GetProjects()))
@@ -37,7 +37,7 @@ var list gin.HandlerFunc = func(context *gin.Context) {
 			"client_key": project.GetClientKey(),
 		})
 	}
-	context.JSON(200, gin.H{
+	c.JSON(200, gin.H{
 		"index": p.Index,
 		"size":  p.Size,
 		"total": response.GetTotal(),

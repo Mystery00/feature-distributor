@@ -1,4 +1,4 @@
-package server
+package toggle
 
 import (
 	"feature-distributor/endpoint/grpc"
@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var stringValue gin.HandlerFunc = func(context *gin.Context) {
+var stringValue gin.HandlerFunc = func(c *gin.Context) {
 	client := grpc.GetToggleClient()
-	response, err := client.GetStringToggle(context.Request.Context(), &pb.StringToggleRequest{
+	response, err := client.GetStringToggle(c.Request.Context(), &pb.StringToggleRequest{
 		ReqUser: &pb.ReqUser{
 			RolloutKey: "1111",
 			Attributes: make(map[string]string),
@@ -18,8 +18,8 @@ var stringValue gin.HandlerFunc = func(context *gin.Context) {
 		DefaultValue: "123",
 	})
 	if err != nil {
-		context.JSON(500, gin.H{"error": err.Error()})
+		grpc.HandleGRPCError(c, err)
 		return
 	}
-	context.JSON(200, gin.H{"value": response.GetResultValue()})
+	c.JSON(200, gin.H{"value": response.GetResultValue()})
 }

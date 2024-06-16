@@ -46,7 +46,7 @@ func (c *healthServiceClient) CheckHealth(ctx context.Context, in *CheckHealthRe
 	return out, nil
 }
 
-// HealthServiceServer is the server API for HealthService service.
+// HealthServiceServer is the toggle API for HealthService service.
 // All implementations must embed UnimplementedHealthServiceServer
 // for forward compatibility
 type HealthServiceServer interface {

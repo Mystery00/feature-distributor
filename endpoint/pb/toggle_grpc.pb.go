@@ -19,6 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	ToggleService_ListToggle_FullMethodName      = "/ToggleService/ListToggle"
+	ToggleService_GetToggle_FullMethodName       = "/ToggleService/GetToggle"
 	ToggleService_GetBoolToggle_FullMethodName   = "/ToggleService/GetBoolToggle"
 	ToggleService_GetStringToggle_FullMethodName = "/ToggleService/GetStringToggle"
 	ToggleService_GetFloatToggle_FullMethodName  = "/ToggleService/GetFloatToggle"
@@ -30,6 +32,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ToggleServiceClient interface {
+	ListToggle(ctx context.Context, in *ListToggleRequest, opts ...grpc.CallOption) (*ListToggleResponse, error)
+	GetToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error)
 	GetBoolToggle(ctx context.Context, in *BoolToggleRequest, opts ...grpc.CallOption) (*BoolToggleResponse, error)
 	GetStringToggle(ctx context.Context, in *StringToggleRequest, opts ...grpc.CallOption) (*StringToggleResponse, error)
 	GetFloatToggle(ctx context.Context, in *FloatToggleRequest, opts ...grpc.CallOption) (*FloatToggleResponse, error)
@@ -43,6 +47,24 @@ type toggleServiceClient struct {
 
 func NewToggleServiceClient(cc grpc.ClientConnInterface) ToggleServiceClient {
 	return &toggleServiceClient{cc}
+}
+
+func (c *toggleServiceClient) ListToggle(ctx context.Context, in *ListToggleRequest, opts ...grpc.CallOption) (*ListToggleResponse, error) {
+	out := new(ListToggleResponse)
+	err := c.cc.Invoke(ctx, ToggleService_ListToggle_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *toggleServiceClient) GetToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error) {
+	out := new(Toggle)
+	err := c.cc.Invoke(ctx, ToggleService_GetToggle_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *toggleServiceClient) GetBoolToggle(ctx context.Context, in *BoolToggleRequest, opts ...grpc.CallOption) (*BoolToggleResponse, error) {
@@ -90,10 +112,12 @@ func (c *toggleServiceClient) GetJsonToggle(ctx context.Context, in *JsonToggleR
 	return out, nil
 }
 
-// ToggleServiceServer is the server API for ToggleService service.
+// ToggleServiceServer is the toggle API for ToggleService service.
 // All implementations must embed UnimplementedToggleServiceServer
 // for forward compatibility
 type ToggleServiceServer interface {
+	ListToggle(context.Context, *ListToggleRequest) (*ListToggleResponse, error)
+	GetToggle(context.Context, *GetToggleRequest) (*Toggle, error)
 	GetBoolToggle(context.Context, *BoolToggleRequest) (*BoolToggleResponse, error)
 	GetStringToggle(context.Context, *StringToggleRequest) (*StringToggleResponse, error)
 	GetFloatToggle(context.Context, *FloatToggleRequest) (*FloatToggleResponse, error)
@@ -106,6 +130,12 @@ type ToggleServiceServer interface {
 type UnimplementedToggleServiceServer struct {
 }
 
+func (UnimplementedToggleServiceServer) ListToggle(context.Context, *ListToggleRequest) (*ListToggleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListToggle not implemented")
+}
+func (UnimplementedToggleServiceServer) GetToggle(context.Context, *GetToggleRequest) (*Toggle, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetToggle not implemented")
+}
 func (UnimplementedToggleServiceServer) GetBoolToggle(context.Context, *BoolToggleRequest) (*BoolToggleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBoolToggle not implemented")
 }
@@ -132,6 +162,42 @@ type UnsafeToggleServiceServer interface {
 
 func RegisterToggleServiceServer(s grpc.ServiceRegistrar, srv ToggleServiceServer) {
 	s.RegisterService(&ToggleService_ServiceDesc, srv)
+}
+
+func _ToggleService_ListToggle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListToggleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToggleServiceServer).ListToggle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ToggleService_ListToggle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToggleServiceServer).ListToggle(ctx, req.(*ListToggleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ToggleService_GetToggle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetToggleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ToggleServiceServer).GetToggle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ToggleService_GetToggle_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ToggleServiceServer).GetToggle(ctx, req.(*GetToggleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _ToggleService_GetBoolToggle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -231,6 +297,14 @@ var ToggleService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "ToggleService",
 	HandlerType: (*ToggleServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListToggle",
+			Handler:    _ToggleService_ListToggle_Handler,
+		},
+		{
+			MethodName: "GetToggle",
+			Handler:    _ToggleService_GetToggle_Handler,
+		},
 		{
 			MethodName: "GetBoolToggle",
 			Handler:    _ToggleService_GetBoolToggle_Handler,
