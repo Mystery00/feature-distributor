@@ -63,7 +63,6 @@ message BoolToggleRequest{
   ReqUser reqUser = 1;
   string projectKey = 2;
   string toggleKey = 3;
-  bool defaultValue = 4;
 }
 
 message BoolToggleResponse{
@@ -75,7 +74,6 @@ message StringToggleRequest{
   ReqUser reqUser = 1;
   string projectKey = 2;
   string toggleKey = 3;
-  string defaultValue = 4;
 }
 
 message StringToggleResponse{
@@ -87,7 +85,6 @@ message FloatToggleRequest{
   ReqUser reqUser = 1;
   string projectKey = 2;
   string toggleKey = 3;
-  float defaultValue = 4;
 }
 
 message FloatToggleResponse{
@@ -99,7 +96,6 @@ message IntToggleRequest{
   ReqUser reqUser = 1;
   string projectKey = 2;
   string toggleKey = 3;
-  int64 defaultValue = 4;
 }
 
 message IntToggleResponse{
@@ -111,7 +107,6 @@ message JsonToggleRequest{
   ReqUser reqUser = 1;
   string projectKey = 2;
   string toggleKey = 3;
-  string defaultValue = 4;
 }
 
 message JsonToggleResponse{

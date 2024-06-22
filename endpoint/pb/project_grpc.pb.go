@@ -79,7 +79,7 @@ func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequ
 	return out, nil
 }
 
-// CoreServiceServer is the toggle API for CoreService service.
+// CoreServiceServer is the server API for CoreService service.
 // All implementations must embed UnimplementedCoreServiceServer
 // for forward compatibility
 type CoreServiceServer interface {

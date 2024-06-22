@@ -112,7 +112,7 @@ func (c *toggleServiceClient) GetJsonToggle(ctx context.Context, in *JsonToggleR
 	return out, nil
 }
 
-// ToggleServiceServer is the toggle API for ToggleService service.
+// ToggleServiceServer is the server API for ToggleService service.
 // All implementations must embed UnimplementedToggleServiceServer
 // for forward compatibility
 type ToggleServiceServer interface {

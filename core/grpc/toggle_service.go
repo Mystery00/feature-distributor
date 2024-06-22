@@ -8,20 +8,12 @@ import (
 	"feature-distributor/core/db/enum"
 	"feature-distributor/core/db/query"
 	"feature-distributor/core/pb"
+	"feature-distributor/core/provider"
 	"github.com/open-feature/go-sdk/openfeature"
 	"gorm.io/gorm"
 )
 
-var clientMap = make(map[string]*openfeature.Client)
-
-func getClient(projectKey string) *openfeature.Client {
-	if client, ok := clientMap[projectKey]; ok {
-		return client
-	}
-	client := openfeature.NewClient(projectKey)
-	clientMap[projectKey] = client
-	return client
-}
+var client = openfeature.NewClient("feature-distributor")
 
 type ToggleServer struct {
 	pb.UnimplementedToggleServiceServer
@@ -109,15 +101,15 @@ func (s *ToggleServer) GetToggle(ctx context.Context, in *pb.GetToggleRequest) (
 }
 
 func (s *ToggleServer) GetBoolToggle(ctx context.Context, in *pb.BoolToggleRequest) (*pb.BoolToggleResponse, error) {
-	client := getClient(in.GetProjectKey())
 	attributes := make(map[string]interface{})
 	for k, v := range in.GetReqUser().GetAttributes() {
 		attributes[k] = v
 	}
 	c := openfeature.NewEvaluationContext(in.GetReqUser().GetRolloutKey(), attributes)
-	value, err := client.BooleanValue(ctx, in.GetToggleKey(), in.GetDefaultValue(), c)
+	cc := context.WithValue(ctx, "projectKey", in.GetProjectKey())
+	value, err := client.BooleanValue(cc, in.GetToggleKey(), false, c)
 	if err != nil {
-		return nil, err
+		return nil, provider.DealError(err)
 	}
 	return &pb.BoolToggleResponse{
 		ToggleKey:   in.GetToggleKey(),
@@ -126,15 +118,15 @@ func (s *ToggleServer) GetBoolToggle(ctx context.Context, in *pb.BoolToggleReque
 }
 
 func (s *ToggleServer) GetStringToggle(ctx context.Context, in *pb.StringToggleRequest) (*pb.StringToggleResponse, error) {
-	client := getClient(in.GetProjectKey())
 	attributes := make(map[string]interface{})
 	for k, v := range in.GetReqUser().GetAttributes() {
 		attributes[k] = v
 	}
 	c := openfeature.NewEvaluationContext(in.GetReqUser().GetRolloutKey(), attributes)
-	value, err := client.StringValue(ctx, in.GetToggleKey(), in.GetDefaultValue(), c)
+	cc := context.WithValue(ctx, "projectKey", in.GetProjectKey())
+	value, err := client.StringValue(cc, in.GetToggleKey(), "", c)
 	if err != nil {
-		return nil, err
+		return nil, provider.DealError(err)
 	}
 	return &pb.StringToggleResponse{
 		ToggleKey:   in.GetToggleKey(),
@@ -143,15 +135,15 @@ func (s *ToggleServer) GetStringToggle(ctx context.Context, in *pb.StringToggleR
 }
 
 func (s *ToggleServer) GetFloatToggle(ctx context.Context, in *pb.FloatToggleRequest) (*pb.FloatToggleResponse, error) {
-	client := getClient(in.GetProjectKey())
 	attributes := make(map[string]interface{})
 	for k, v := range in.GetReqUser().GetAttributes() {
 		attributes[k] = v
 	}
 	c := openfeature.NewEvaluationContext(in.GetReqUser().GetRolloutKey(), attributes)
-	value, err := client.FloatValue(ctx, in.GetToggleKey(), float64(in.GetDefaultValue()), c)
+	cc := context.WithValue(ctx, "projectKey", in.GetProjectKey())
+	value, err := client.FloatValue(cc, in.GetToggleKey(), 0, c)
 	if err != nil {
-		return nil, err
+		return nil, provider.DealError(err)
 	}
 	return &pb.FloatToggleResponse{
 		ToggleKey:   in.GetToggleKey(),
@@ -160,15 +152,15 @@ func (s *ToggleServer) GetFloatToggle(ctx context.Context, in *pb.FloatToggleReq
 }
 
 func (s *ToggleServer) GetIntToggle(ctx context.Context, in *pb.IntToggleRequest) (*pb.IntToggleResponse, error) {
-	client := getClient(in.GetProjectKey())
 	attributes := make(map[string]interface{})
 	for k, v := range in.GetReqUser().GetAttributes() {
 		attributes[k] = v
 	}
 	c := openfeature.NewEvaluationContext(in.GetReqUser().GetRolloutKey(), attributes)
-	value, err := client.IntValue(ctx, in.GetToggleKey(), in.GetDefaultValue(), c)
+	cc := context.WithValue(ctx, "projectKey", in.GetProjectKey())
+	value, err := client.IntValue(cc, in.GetToggleKey(), 0, c)
 	if err != nil {
-		return nil, err
+		return nil, provider.DealError(err)
 	}
 	return &pb.IntToggleResponse{
 		ToggleKey:   in.GetToggleKey(),
@@ -177,15 +169,15 @@ func (s *ToggleServer) GetIntToggle(ctx context.Context, in *pb.IntToggleRequest
 }
 
 func (s *ToggleServer) GetJsonToggle(ctx context.Context, in *pb.JsonToggleRequest) (*pb.JsonToggleResponse, error) {
-	client := getClient(in.GetProjectKey())
 	attributes := make(map[string]interface{})
 	for k, v := range in.GetReqUser().GetAttributes() {
 		attributes[k] = v
 	}
 	c := openfeature.NewEvaluationContext(in.GetReqUser().GetRolloutKey(), attributes)
-	value, err := client.ObjectValue(ctx, in.GetToggleKey(), in.GetDefaultValue(), c)
+	cc := context.WithValue(ctx, "projectKey", in.GetProjectKey())
+	value, err := client.ObjectValue(cc, in.GetToggleKey(), "{}", c)
 	if err != nil {
-		return nil, err
+		return nil, provider.DealError(err)
 	}
 	bytes, err := json.Marshal(value)
 	if err != nil {

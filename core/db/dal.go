@@ -15,6 +15,7 @@ func InitDatabase() {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
+		Logger: NewOrmLogger(logrus.WithField("source", "gorm")),
 	})
 	if err != nil {
 		panic(err)

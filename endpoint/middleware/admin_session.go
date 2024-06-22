@@ -6,6 +6,7 @@ import (
 	"feature-distributor/endpoint/web"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 var whiteUri = []string{
@@ -24,6 +25,10 @@ func isWhiteUri(uri string) bool {
 
 var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
 	if isWhiteUri(c.Request.RequestURI) {
+		c.Next()
+		return
+	}
+	if strings.HasPrefix(c.Request.RequestURI, fmt.Sprintf("%s%s", web.ApiPrefix, "/client")) {
 		c.Next()
 		return
 	}

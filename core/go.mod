@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	feature-distributor/common v0.0.0
+	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/open-feature/go-sdk v1.11.0

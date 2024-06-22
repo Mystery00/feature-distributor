@@ -13,9 +13,8 @@ var stringValue gin.HandlerFunc = func(c *gin.Context) {
 			RolloutKey: "1111",
 			Attributes: make(map[string]string),
 		},
-		ProjectKey:   "123",
-		ToggleKey:    "123",
-		DefaultValue: "123",
+		ProjectKey: "123",
+		ToggleKey:  "123",
 	})
 	if err != nil {
 		grpc.HandleGRPCError(c, err)

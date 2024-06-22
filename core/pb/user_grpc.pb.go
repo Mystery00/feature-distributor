@@ -57,7 +57,7 @@ func (c *userServiceClient) InitAdmin(ctx context.Context, in *InitAdminRequest,
 	return out, nil
 }
 
-// UserServiceServer is the toggle API for UserService service.
+// UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
