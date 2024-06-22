@@ -4,6 +4,7 @@ import (
 	"context"
 	"feature-distributor/common/env"
 	"feature-distributor/common/logger"
+	"feature-distributor/endpoint/event"
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/middleware"
 	"feature-distributor/endpoint/redis"
@@ -25,6 +26,7 @@ func main() {
 	}
 	logger.InitLog()
 	grpc.Init()
+	event.Init()
 
 	gin.DisableConsoleColor()
 	gin.SetMode(gin.ReleaseMode)
@@ -52,6 +54,7 @@ func main() {
 	<-quit
 	log.Println("EndpointServer exiting")
 
+	event.Close()
 	if err := grpc.Close(); err != nil {
 		log.Warnf("Close grpc connection: %v", err)
 	}

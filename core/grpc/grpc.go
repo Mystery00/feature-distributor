@@ -23,6 +23,7 @@ func Run(addr string) error {
 			logging.UnaryServerInterceptor(logger.InterceptorLogger(log), opts...),
 		),
 	)
+	pb.RegisterEventServiceServer(server, &EventServer{})
 	pb.RegisterHealthServiceServer(server, &HealthServer{})
 	pb.RegisterUserServiceServer(server, &UserServer{})
 	pb.RegisterCoreServiceServer(server, &CoreServer{})

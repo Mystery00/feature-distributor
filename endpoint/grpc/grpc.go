@@ -12,6 +12,7 @@ import (
 )
 
 var connection *rpc.ClientConn
+var eventClient pb.EventServiceClient
 var coreClient pb.CoreServiceClient
 var toggleClient pb.ToggleServiceClient
 var userClient pb.UserServiceClient
@@ -33,6 +34,7 @@ func Init() {
 		panic(err)
 	}
 	connection = conn
+	eventClient = pb.NewEventServiceClient(conn)
 	coreClient = pb.NewCoreServiceClient(conn)
 	userClient = pb.NewUserServiceClient(conn)
 	toggleClient = pb.NewToggleServiceClient(conn)
@@ -40,6 +42,10 @@ func Init() {
 
 func Close() error {
 	return connection.Close()
+}
+
+func GetEventClient() pb.EventServiceClient {
+	return eventClient
 }
 
 func GetCoreClient() pb.CoreServiceClient {

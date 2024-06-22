@@ -32,6 +32,10 @@ var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
 		c.Next()
 		return
 	}
+	if strings.HasPrefix(c.Request.RequestURI, fmt.Sprintf("%s%s", web.ApiPrefix, "/server")) {
+		c.Next()
+		return
+	}
 	authorization := c.Request.Header.Get("Authorization")
 	if authorization == "" {
 		c.JSON(401, gin.H{

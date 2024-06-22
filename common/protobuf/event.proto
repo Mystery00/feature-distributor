@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+service EventService {
+  rpc SubscribeEvents(Subscriber) returns (stream Event);
+}
+
+message Subscriber{
+  string name = 1;
+}
+
+message Event{
+  string type = 1;
+  optional UpdateData data = 2;
+}
+
+message UpdateData{
+  int64 projectId = 1;
+  string projectKey = 2;
+  optional int64 toggleId = 3;
+  optional string toggleKey = 4;
+}

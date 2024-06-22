@@ -7,6 +7,7 @@ import (
 	"feature-distributor/common/alert"
 	"feature-distributor/core/db/model"
 	"feature-distributor/core/db/query"
+	"feature-distributor/core/notify"
 	"feature-distributor/core/pb"
 	"fmt"
 	"github.com/pkg/errors"
@@ -98,6 +99,7 @@ func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest)
 	if err != nil {
 		return nil, err
 	}
+	notify.ProjectChange(*project)
 	return &pb.GetProjectResponse{
 		Project: convertTo(project),
 	}, nil
