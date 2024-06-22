@@ -7,13 +7,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type CreateReq struct {
+type SaveReq struct {
+	Id   *int64 `json:"id"`
 	Name string `json:"name" required:"true" binding:"required"`
 	Key  string `json:"key" required:"true" binding:"required"`
 }
 
-var create gin.HandlerFunc = func(c *gin.Context) {
-	var req CreateReq
+var save gin.HandlerFunc = func(c *gin.Context) {
+	var req SaveReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		logrus.Info("invalid params", err)
@@ -21,9 +22,10 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	response, err := client.SaveProject(c.Request.Context(), &pb.SaveProjectRequest{
-		Name: req.Name,
-		Key:  req.Key,
+	project, err := client.SaveProject(c.Request.Context(), &pb.SaveProjectRequest{
+		ProjectId: req.Id,
+		Name:      req.Name,
+		Key:       req.Key,
 	})
 	if err != nil {
 		if err != nil {
@@ -32,8 +34,8 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 		}
 	}
 	c.JSON(200, gin.H{
-		"id":   response.GetProject().GetId(),
-		"name": response.GetProject().GetName(),
-		"key":  response.GetProject().GetKey(),
+		"id":   project.GetId(),
+		"name": project.GetName(),
+		"key":  project.GetKey(),
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
+	"time"
 )
 
 var ctx, cancelFunc = context.WithCancel(context.Background())
@@ -31,11 +32,14 @@ func Init() {
 }
 
 func createEventGrpcSubscriber(client pb.EventServiceClient, subscriberName string) {
+	logrus.Infof("create event subscriber: %v", subscriberName)
 	stream, err := client.SubscribeEvents(ctx, &pb.Subscriber{
 		Name: subscriberName,
 	})
 	if err != nil {
-		panic(err)
+		logrus.Errorf("subscribe event failed, %v", err)
+		time.Sleep(5 * time.Second)
+		return
 	}
 FOR:
 	for {

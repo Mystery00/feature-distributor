@@ -3,8 +3,9 @@ syntax = "proto3";
 service CoreService {
   rpc ListProjects(PageRequest) returns (ProjectPageResponse);
   rpc CheckProject(CheckProjectRequest) returns (CheckProjectResponse);
-  rpc GetProject(GetProjectRequest) returns (GetProjectResponse);
-  rpc SaveProject(SaveProjectRequest) returns (GetProjectResponse);
+  rpc GetProject(ProjectRequest) returns (Project);
+  rpc SaveProject(SaveProjectRequest) returns (Project);
+  rpc DeleteProject(ProjectRequest) returns (Project);
 }
 
 message Project{
@@ -36,12 +37,8 @@ message CheckProjectResponse{
   optional Project project = 1;
 }
 
-message GetProjectRequest{
+message ProjectRequest{
   int64 id = 1;
-}
-
-message GetProjectResponse{
-  optional Project project = 1;
 }
 
 message SaveProjectRequest{

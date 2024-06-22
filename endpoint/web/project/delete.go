@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var get gin.HandlerFunc = func(c *gin.Context) {
+var remove gin.HandlerFunc = func(c *gin.Context) {
 	var p projectId
 	err := c.ShouldBindQuery(&p)
 	if err != nil {
@@ -14,7 +14,7 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	project, err := client.GetProject(c.Request.Context(), &pb.ProjectRequest{
+	_, err = client.DeleteProject(c.Request.Context(), &pb.ProjectRequest{
 		Id: p.Id,
 	})
 	if err != nil {
@@ -23,11 +23,5 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(200, gin.H{
-		"id":         project.GetId(),
-		"name":       project.GetName(),
-		"key":        project.GetKey(),
-		"server_key": project.GetServerKey(),
-		"client_key": project.GetClientKey(),
-	})
+	c.Status(204)
 }

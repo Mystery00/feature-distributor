@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"errors"
+	"feature-distributor/common/value"
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
 	"github.com/gin-gonic/gin"
@@ -35,58 +35,14 @@ var toggle gin.HandlerFunc = func(c *gin.Context) {
 
 func getToggle(ctx context.Context, r reqUser, projectKey, toggleKey, toggleType string) (any, error) {
 	client := grpc.GetToggleClient()
-	switch toggleType {
-	case "bool":
-		response, err := client.GetBoolToggle(ctx, &pb.BoolToggleRequest{
-			ReqUser:    r.buildReqUser(),
-			ProjectKey: projectKey,
-			ToggleKey:  toggleKey,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return response.GetResultValue(), nil
-	case "string":
-		response, err := client.GetStringToggle(ctx, &pb.StringToggleRequest{
-			ReqUser:    r.buildReqUser(),
-			ProjectKey: projectKey,
-			ToggleKey:  toggleKey,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return response.GetResultValue(), nil
-	case "float":
-		response, err := client.GetFloatToggle(ctx, &pb.FloatToggleRequest{
-			ReqUser:    r.buildReqUser(),
-			ProjectKey: projectKey,
-			ToggleKey:  toggleKey,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return response.GetResultValue(), nil
-	case "int":
-		response, err := client.GetIntToggle(ctx, &pb.IntToggleRequest{
-			ReqUser:    r.buildReqUser(),
-			ProjectKey: projectKey,
-			ToggleKey:  toggleKey,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return response.GetResultValue(), nil
-	case "json":
-		response, err := client.GetJsonToggle(ctx, &pb.JsonToggleRequest{
-			ReqUser:    r.buildReqUser(),
-			ProjectKey: projectKey,
-			ToggleKey:  toggleKey,
-		})
-		if err != nil {
-			return nil, err
-		}
-		return response.GetResultValue(), nil
-	default:
-		return nil, errors.New("invalid toggle type")
+	response, err := client.GetToggleValue(ctx, &pb.GetToggleValueRequest{
+		ReqUser:    r.buildReqUser(),
+		ProjectKey: projectKey,
+		ToggleKey:  toggleKey,
+		ToggleType: toggleType,
+	})
+	if err != nil {
+		return nil, err
 	}
+	return value.AutoDetectValue(toggleType, response.GetResultValue())
 }

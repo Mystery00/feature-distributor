@@ -30,7 +30,7 @@ func (s *CoreServer) ListProjects(ctx context.Context, in *pb.PageRequest) (*pb.
 	}
 	resultList := make([]*pb.Project, 0, len(list))
 	for _, project := range list {
-		resultList = append(resultList, convertTo(project))
+		resultList = append(resultList, convertToProject(project))
 	}
 	return &pb.ProjectPageResponse{
 		Total:    total,
@@ -59,11 +59,11 @@ func (s *CoreServer) CheckProject(ctx context.Context, in *pb.CheckProjectReques
 		return nil, err
 	}
 	return &pb.CheckProjectResponse{
-		Project: convertTo(project),
+		Project: convertToProject(project),
 	}, nil
 }
 
-func (s *CoreServer) GetProject(ctx context.Context, in *pb.GetProjectRequest) (*pb.GetProjectResponse, error) {
+func (s *CoreServer) GetProject(ctx context.Context, in *pb.ProjectRequest) (*pb.Project, error) {
 	p := query.Project
 	pc := p.WithContext(ctx)
 	project, err := pc.Where(p.ID.Eq(in.GetId())).First()
@@ -73,39 +73,73 @@ func (s *CoreServer) GetProject(ctx context.Context, in *pb.GetProjectRequest) (
 		}
 		return nil, err
 	}
-	return &pb.GetProjectResponse{
-		Project: convertTo(project),
-	}, nil
+	return convertToProject(project), nil
 }
 
-func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest) (*pb.GetProjectResponse, error) {
+func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest) (*pb.Project, error) {
 	p := query.Project
 	pc := p.WithContext(ctx)
-	//查询是否存在相同的key
-	project, err := pc.Where(p.Key.Eq(in.GetKey())).First()
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	var project *model.Project
+	if in.ProjectId != nil {
+		//更新
+		_, err := pc.Where(p.ID.Eq(in.GetProjectId())).First()
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, alert.Error(alert.ProjectNotExist)
+			}
+			return nil, err
+		}
+		_, err = pc.Where(p.ID.Eq(in.GetProjectId())).Updates(model.Project{
+			Name: in.GetName(),
+		})
+		if err != nil {
+			return nil, err
+		}
+		project, _ = pc.Where(p.ID.Eq(in.GetProjectId())).First()
+	} else {
+		//查询是否存在相同的key
+		pro, err := pc.Where(p.Key.Eq(in.GetKey())).First()
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		if pro != nil {
+			return nil, alert.Error(alert.ProjectExist)
+		}
+		pro = &model.Project{
+			Name:      in.GetName(),
+			Key:       in.GetKey(),
+			ServerKey: generateKey(in.GetKey(), "toggle"),
+			ClientKey: generateKey(in.GetKey(), "client"),
+		}
+		err = pc.Save(pro)
+		if err != nil {
+			return nil, err
+		}
+		project = pro
+	}
+	notify.ProjectChange(*project)
+	return convertToProject(project), nil
+}
+
+func (s *CoreServer) DeleteProject(ctx context.Context, in *pb.ProjectRequest) (*pb.Project, error) {
+	p := query.Project
+	pc := p.WithContext(ctx)
+	project, err := pc.Where(p.ID.Eq(in.GetId())).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, alert.Error(alert.ProjectNotExist)
+		}
 		return nil, err
 	}
-	if project != nil {
-		return nil, alert.Error(alert.ProjectExist)
-	}
-	project = &model.Project{
-		Name:      in.GetName(),
-		Key:       in.GetKey(),
-		ServerKey: generateKey(in.GetKey(), "toggle"),
-		ClientKey: generateKey(in.GetKey(), "client"),
-	}
-	err = pc.Save(project)
+	_, err = pc.Where(p.ID.Eq(in.GetId())).Delete()
 	if err != nil {
 		return nil, err
 	}
 	notify.ProjectChange(*project)
-	return &pb.GetProjectResponse{
-		Project: convertTo(project),
-	}, nil
+	return convertToProject(project), nil
 }
 
-func convertTo(p *model.Project) *pb.Project {
+func convertToProject(p *model.Project) *pb.Project {
 	if p == nil {
 		return nil
 	}

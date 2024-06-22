@@ -1,8 +1,10 @@
 package enum
 
+import "feature-distributor/common/value"
+
 type ValueType int8
 
-var (
+const (
 	BoolValueType   ValueType = 1
 	StringValueType ValueType = 2
 	FloatValueType  ValueType = 3
@@ -10,63 +12,45 @@ var (
 	JsonValueType   ValueType = 5
 )
 
-func (ValueType) Values() []ValueType {
-	return []ValueType{
+var (
+	values = []ValueType{
 		BoolValueType,
 		StringValueType,
 		FloatValueType,
 		IntValueType,
 		JsonValueType,
 	}
-}
+	typeMap = map[ValueType]value.Type{
+		BoolValueType:   value.BoolValueType,
+		StringValueType: value.StringValueType,
+		FloatValueType:  value.FloatValueType,
+		IntValueType:    value.IntValueType,
+		JsonValueType:   value.JsonValueType,
+	}
+)
 
 func ParseValueType(s string) ValueType {
-	switch s {
-	case "BOOL":
-		return BoolValueType
-	case "STRING":
-		return StringValueType
-	case "FLOAT":
-		return FloatValueType
-	case "INT":
-		return IntValueType
-	case "JSON":
-		return JsonValueType
-	default:
+	vType := value.ParseType(s)
+	if vType == nil {
 		panic("unknown value type")
 	}
+	for k, v := range typeMap {
+		if v == *vType {
+			return k
+		}
+	}
+	panic("unknown value type")
 }
 
 func (v ValueType) String() string {
-	switch v {
-	case BoolValueType:
-		return "BOOL"
-	case StringValueType:
-		return "STRING"
-	case FloatValueType:
-		return "FLOAT"
-	case IntValueType:
-		return "INT"
-	case JsonValueType:
-		return "JSON"
-	default:
-		panic("unknown value type")
-	}
+	return typeMap[v].String()
 }
 
 func ValueTypeEnum(v int8) ValueType {
-	switch v {
-	case 1:
-		return BoolValueType
-	case 2:
-		return StringValueType
-	case 3:
-		return FloatValueType
-	case 4:
-		return IntValueType
-	case 5:
-		return JsonValueType
-	default:
-		panic("unknown value type")
+	for _, valueType := range values {
+		if int8(valueType) == v {
+			return valueType
+		}
 	}
+	panic("unknown value type")
 }

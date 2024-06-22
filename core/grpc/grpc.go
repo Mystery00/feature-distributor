@@ -16,7 +16,7 @@ func Run(addr string) error {
 		return err
 	}
 	opts := []logging.Option{
-		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall),
+		logging.WithLogOnEvents(),
 	}
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(

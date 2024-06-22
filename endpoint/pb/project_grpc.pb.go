@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CoreService_ListProjects_FullMethodName = "/CoreService/ListProjects"
-	CoreService_CheckProject_FullMethodName = "/CoreService/CheckProject"
-	CoreService_GetProject_FullMethodName   = "/CoreService/GetProject"
-	CoreService_SaveProject_FullMethodName  = "/CoreService/SaveProject"
+	CoreService_ListProjects_FullMethodName  = "/CoreService/ListProjects"
+	CoreService_CheckProject_FullMethodName  = "/CoreService/CheckProject"
+	CoreService_GetProject_FullMethodName    = "/CoreService/GetProject"
+	CoreService_SaveProject_FullMethodName   = "/CoreService/SaveProject"
+	CoreService_DeleteProject_FullMethodName = "/CoreService/DeleteProject"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -31,8 +32,9 @@ const (
 type CoreServiceClient interface {
 	ListProjects(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*ProjectPageResponse, error)
 	CheckProject(ctx context.Context, in *CheckProjectRequest, opts ...grpc.CallOption) (*CheckProjectResponse, error)
-	GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*GetProjectResponse, error)
-	SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*GetProjectResponse, error)
+	GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error)
 }
 
 type coreServiceClient struct {
@@ -61,8 +63,8 @@ func (c *coreServiceClient) CheckProject(ctx context.Context, in *CheckProjectRe
 	return out, nil
 }
 
-func (c *coreServiceClient) GetProject(ctx context.Context, in *GetProjectRequest, opts ...grpc.CallOption) (*GetProjectResponse, error) {
-	out := new(GetProjectResponse)
+func (c *coreServiceClient) GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+	out := new(Project)
 	err := c.cc.Invoke(ctx, CoreService_GetProject_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -70,9 +72,18 @@ func (c *coreServiceClient) GetProject(ctx context.Context, in *GetProjectReques
 	return out, nil
 }
 
-func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*GetProjectResponse, error) {
-	out := new(GetProjectResponse)
+func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+	out := new(Project)
 	err := c.cc.Invoke(ctx, CoreService_SaveProject_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error) {
+	out := new(Project)
+	err := c.cc.Invoke(ctx, CoreService_DeleteProject_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +96,9 @@ func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequ
 type CoreServiceServer interface {
 	ListProjects(context.Context, *PageRequest) (*ProjectPageResponse, error)
 	CheckProject(context.Context, *CheckProjectRequest) (*CheckProjectResponse, error)
-	GetProject(context.Context, *GetProjectRequest) (*GetProjectResponse, error)
-	SaveProject(context.Context, *SaveProjectRequest) (*GetProjectResponse, error)
+	GetProject(context.Context, *ProjectRequest) (*Project, error)
+	SaveProject(context.Context, *SaveProjectRequest) (*Project, error)
+	DeleteProject(context.Context, *ProjectRequest) (*Project, error)
 	mustEmbedUnimplementedCoreServiceServer()
 }
 
@@ -100,11 +112,14 @@ func (UnimplementedCoreServiceServer) ListProjects(context.Context, *PageRequest
 func (UnimplementedCoreServiceServer) CheckProject(context.Context, *CheckProjectRequest) (*CheckProjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckProject not implemented")
 }
-func (UnimplementedCoreServiceServer) GetProject(context.Context, *GetProjectRequest) (*GetProjectResponse, error) {
+func (UnimplementedCoreServiceServer) GetProject(context.Context, *ProjectRequest) (*Project, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProject not implemented")
 }
-func (UnimplementedCoreServiceServer) SaveProject(context.Context, *SaveProjectRequest) (*GetProjectResponse, error) {
+func (UnimplementedCoreServiceServer) SaveProject(context.Context, *SaveProjectRequest) (*Project, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveProject not implemented")
+}
+func (UnimplementedCoreServiceServer) DeleteProject(context.Context, *ProjectRequest) (*Project, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProject not implemented")
 }
 func (UnimplementedCoreServiceServer) mustEmbedUnimplementedCoreServiceServer() {}
 
@@ -156,7 +171,7 @@ func _CoreService_CheckProject_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _CoreService_GetProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetProjectRequest)
+	in := new(ProjectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -168,7 +183,7 @@ func _CoreService_GetProject_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: CoreService_GetProject_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CoreServiceServer).GetProject(ctx, req.(*GetProjectRequest))
+		return srv.(CoreServiceServer).GetProject(ctx, req.(*ProjectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -187,6 +202,24 @@ func _CoreService_SaveProject_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).SaveProject(ctx, req.(*SaveProjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_DeleteProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).DeleteProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_DeleteProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).DeleteProject(ctx, req.(*ProjectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -213,6 +246,10 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveProject",
 			Handler:    _CoreService_SaveProject_Handler,
+		},
+		{
+			MethodName: "DeleteProject",
+			Handler:    _CoreService_DeleteProject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
