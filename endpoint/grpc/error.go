@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"feature-distributor/common/alert"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -27,8 +28,8 @@ func errorHandle(ctx context.Context, method string, req, reply any, cc *grpc.Cl
 func HandleGRPCError(ctx *gin.Context, err error) {
 	if c := alert.Convert(err); c != nil {
 		e := ReturnErrorMessage(*c)
-		ctx.JSON(e.Status, gin.H{"error": e.Msg})
+		resp.Fail(ctx, e.Status, e.Msg)
 	} else {
-		ctx.JSON(500, gin.H{"error": err.Error()})
+		resp.Err(ctx, 500, err)
 	}
 }

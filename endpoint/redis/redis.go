@@ -50,3 +50,10 @@ func Expire(ctx context.Context, key string, expiration time.Duration) (err erro
 	err = rdb.Expire(ctx, redisKey, expiration).Err()
 	return
 }
+
+func Del(ctx context.Context, key string) (err error) {
+	prefix := viper.GetString(env.RedisPrefix)
+	redisKey := fmt.Sprintf("%s%s", prefix, key)
+	err = rdb.Del(ctx, redisKey).Err()
+	return
+}

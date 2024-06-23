@@ -1,9 +1,11 @@
 package middleware
 
 import (
+	"encoding/json"
 	"feature-distributor/endpoint/constants"
 	"feature-distributor/endpoint/redis"
 	"feature-distributor/endpoint/web"
+	"feature-distributor/endpoint/web/resp"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -38,36 +40,31 @@ var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
 	}
 	authorization := c.Request.Header.Get("Authorization")
 	if authorization == "" {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		c.Abort()
+		resp.Fail(c, 401, "Unauthorized")
 		return
 	}
 	key := fmt.Sprintf("session:%s", authorization)
 	value, err := redis.Get(c.Request.Context(), key)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		c.Abort()
+		resp.Err(c, 500, err)
 		return
 	}
 	if value == nil {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		c.Abort()
+		resp.Fail(c, 401, "Unauthorized")
 		return
 	}
 	err = redis.Expire(c.Request.Context(), key, constants.UserSessionExpire)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"message": err.Error(),
-		})
-		c.Abort()
+		resp.Err(c, 500, err)
 		return
 	}
-	c.Set("username", *value)
+	session := make(map[string]any)
+	err = json.Unmarshal([]byte(*value), &session)
+	if err != nil {
+		resp.Err(c, 500, err)
+		return
+	}
+	c.Set("userId", session["userId"])
+	c.Set("username", session["username"])
 	c.Next()
 }

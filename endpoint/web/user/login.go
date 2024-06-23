@@ -4,10 +4,12 @@ import (
 	"crypto/sha1"
 	"crypto/sha512"
 	"encoding/hex"
+	"encoding/json"
 	"feature-distributor/endpoint/constants"
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
 	"feature-distributor/endpoint/redis"
+	"feature-distributor/endpoint/web/resp"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -22,7 +24,7 @@ type LoginReq struct {
 var login gin.HandlerFunc = func(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"message": err.Error()})
+		resp.Err(c, 400, err)
 		return
 	}
 	client := grpc.GetUserClient()
@@ -35,20 +37,25 @@ var login gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	if response.GetCode() != http.StatusOK {
-		c.JSON(http.StatusUnauthorized, gin.H{"message": "username or password is incorrect"})
+		resp.Fail(c, 400, "username or password is incorrect")
 		return
 	}
 	token := generateRandomString(req.Username)
 	key := fmt.Sprintf("session:%s", token)
-	err = redis.Set(c.Request.Context(), key, req.Username, constants.UserSessionExpire)
+	session := make(map[string]any)
+	session["userId"] = response.GetUserId()
+	session["username"] = req.Username
+	sessionJson, err := json.Marshal(session)
 	if err != nil {
-		c.JSON(500, gin.H{"message": err.Error()})
+		resp.Err(c, 500, err)
 		return
 	}
-	c.JSON(int(response.GetCode()), gin.H{
-		"token":   token,
-		"message": "ok",
-	})
+	err = redis.Set(c.Request.Context(), key, string(sessionJson), constants.UserSessionExpire)
+	if err != nil {
+		resp.Err(c, 500, err)
+		return
+	}
+	resp.Data(c, token)
 }
 
 func generateRandomString(username string) string {

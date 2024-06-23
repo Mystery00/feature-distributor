@@ -4,6 +4,7 @@ import (
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
 	"feature-distributor/endpoint/web"
+	"feature-distributor/endpoint/web/resp"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -16,10 +17,7 @@ var clientMiddleware gin.HandlerFunc = func(c *gin.Context) {
 	}
 	clientKey := c.Request.Header.Get("client-key")
 	if clientKey == "" {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		c.Abort()
+		resp.Fail(c, 401, "Unauthorized")
 		return
 	}
 	client := grpc.GetCoreClient()
@@ -31,10 +29,7 @@ var clientMiddleware gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	if project.GetProject() == nil {
-		c.JSON(401, gin.H{
-			"message": "Unauthorized",
-		})
-		c.Abort()
+		resp.Fail(c, 401, "Unauthorized")
 		return
 	}
 	c.Set("projectKey", project.GetProject().GetKey())
