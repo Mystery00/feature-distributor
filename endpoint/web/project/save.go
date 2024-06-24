@@ -3,6 +3,7 @@ package project
 import (
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -18,7 +19,7 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		logrus.Info("invalid params", err)
-		c.JSON(400, gin.H{"error": "invalid params"})
+		resp.Fail(c, 400, "invalid params")
 		return
 	}
 	client := grpc.GetCoreClient()
@@ -33,7 +34,7 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(200, gin.H{
+	resp.Data(c, gin.H{
 		"id":   project.GetId(),
 		"name": project.GetName(),
 		"key":  project.GetKey(),

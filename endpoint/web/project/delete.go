@@ -3,6 +3,7 @@ package project
 import (
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,7 +11,7 @@ var remove gin.HandlerFunc = func(c *gin.Context) {
 	var p projectId
 	err := c.ShouldBindQuery(&p)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		resp.Err(c, 400, err)
 		return
 	}
 	client := grpc.GetCoreClient()
@@ -23,5 +24,5 @@ var remove gin.HandlerFunc = func(c *gin.Context) {
 			return
 		}
 	}
-	c.Status(204)
+	resp.Empty(c)
 }

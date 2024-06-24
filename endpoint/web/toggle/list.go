@@ -3,6 +3,7 @@ package toggle
 import (
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +17,7 @@ var list gin.HandlerFunc = func(c *gin.Context) {
 	var p page
 	err := c.ShouldBindQuery(&p)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		resp.Err(c, 400, err)
 		return
 	}
 	client := grpc.GetToggleClient()
@@ -40,9 +41,7 @@ var list gin.HandlerFunc = func(c *gin.Context) {
 			"description": toggle.GetDescription(),
 		})
 	}
-	c.JSON(200, gin.H{
-		"index": p.Index,
-		"size":  p.Size,
+	resp.Data(c, gin.H{
 		"total": response.GetTotal(),
 		"list":  resultList,
 	})
