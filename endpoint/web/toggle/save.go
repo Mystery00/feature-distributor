@@ -4,8 +4,8 @@ import (
 	"feature-distributor/common/value"
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 type SaveReq struct {
@@ -31,45 +31,47 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 	var req SaveReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		logrus.Info("invalid params", err)
-		c.JSON(400, gin.H{"error": "invalid params"})
+		resp.Err(c, 400, err)
 		return
 	}
 	//ValueType检测
 	parseType := value.ParseType(req.ValueType)
 	if parseType == nil {
-		c.JSON(400, gin.H{"error": "invalid value type"})
+		resp.Fail(c, 400, "invalid value type")
 		return
 	}
 	//Values检测
 	if len(req.Values) == 0 {
-		c.JSON(400, gin.H{"error": "invalid values"})
+		resp.Fail(c, 400, "invalid values")
 		return
 	}
-	defaultValueIndex := -1
-	disabledValueIndex := -1
+	var createMode = req.ToggleId == nil
+	defaultValueIndex := 0
+	disabledValueIndex := 0
 	for i, v := range req.Values {
 		if v.Default {
-			if defaultValueIndex != -1 {
-				c.JSON(400, gin.H{"error": "duplicate default value"})
+			if defaultValueIndex != 0 {
+				resp.Fail(c, 400, "duplicate default value")
 				return
 			}
-			defaultValueIndex = i
+			defaultValueIndex = i + 1
 		}
 		if v.DisabledValue {
-			if disabledValueIndex != -1 {
-				c.JSON(400, gin.H{"error": "duplicate disabled value"})
+			if disabledValueIndex != 0 {
+				resp.Fail(c, 400, "duplicate disabled value")
 				return
 			}
-			disabledValueIndex = i
+			disabledValueIndex = i + 1
 		}
 	}
-	if defaultValueIndex == -1 {
-		c.JSON(400, gin.H{"error": "default value not found"})
-		return
+	if !createMode {
+		if defaultValueIndex == 0 {
+			resp.Fail(c, 400, "default value not found")
+			return
+		}
 	}
-	if disabledValueIndex == -1 {
-		c.JSON(400, gin.H{"error": "disabled value not found"})
+	if disabledValueIndex == 0 {
+		resp.Fail(c, 400, "disabled value not found")
 		return
 	}
 	//保存数据
@@ -100,7 +102,7 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 			return
 		}
 	}
-	c.JSON(200, gin.H{
+	resp.Data(c, gin.H{
 		"toggleId": toggle.GetId(),
 		"title":    toggle.GetTitle(),
 		"key":      toggle.GetKey(),

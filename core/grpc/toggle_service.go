@@ -163,7 +163,7 @@ func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 		return nil, alert.Error(alert.ToggleExist)
 	}
 	//检测数据
-	if int(in.GetDefaultValue()) >= len(in.GetValues()) || int(in.GetDisabledValue()) >= len(in.GetValues()) {
+	if int(in.GetDisabledValue()) <= 0 || int(in.GetDisabledValue()) > len(in.GetValues()) {
 		return nil, alert.Error(alert.InvalidToggleValue)
 	}
 	//保存数据
@@ -199,10 +199,8 @@ func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 		values = append(values, toggleValue)
 	}
 	//更新提前存入的默认值
-	defaultValueId := values[int(in.GetDefaultValue())].ID
-	disabledValueId := values[int(in.GetDisabledValue())].ID
+	disabledValueId := values[int(in.GetDisabledValue())-1].ID
 	_, err = tc.Where(t.ID.Eq(toggle.ID)).Updates(model.Toggle{
-		DefaultValue:           defaultValueId,
 		ReturnValueWhenDisable: disabledValueId,
 	})
 	if err != nil {
@@ -217,7 +215,7 @@ func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 	tc := t.WithContext(ctx)
 	tvc := tv.WithContext(ctx)
 	//检测数据
-	if int(in.GetDefaultValue()) >= len(in.GetValues()) || int(in.GetDisabledValue()) >= len(in.GetValues()) {
+	if int(in.GetDefaultValue()) <= 0 || int(in.GetDisabledValue()) <= 0 || int(in.GetDefaultValue()) > len(in.GetValues()) || int(in.GetDisabledValue()) > len(in.GetValues()) {
 		return nil, alert.Error(alert.InvalidToggleValue)
 	}
 	//删除所有旧的值
@@ -236,8 +234,8 @@ func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 		values = append(values, toggleValue)
 	}
 	//保存数据
-	defaultValueId := values[int(in.GetDefaultValue())].ID
-	disabledValueId := values[int(in.GetDisabledValue())].ID
+	defaultValueId := values[int(in.GetDefaultValue())-1].ID
+	disabledValueId := values[int(in.GetDisabledValue())-1].ID
 	_, err := tc.Where(t.ID.Eq(in.GetToggleId())).Updates(model.Toggle{
 		Enable:                 in.GetEnabled(),
 		Title:                  in.GetTitle(),
