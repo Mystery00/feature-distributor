@@ -4,8 +4,8 @@ service CoreService {
   rpc ListProjects(PageRequest) returns (ProjectPageResponse);
   rpc CheckProject(CheckProjectRequest) returns (CheckProjectResponse);
   rpc GetProject(ProjectRequest) returns (Project);
-  rpc SaveProject(SaveProjectRequest) returns (Project);
-  rpc DeleteProject(ProjectRequest) returns (Project);
+  rpc SaveProject(SaveProjectRequest) returns (ProjectOperationResponse);
+  rpc DeleteProject(ProjectRequest) returns (ProjectOperationResponse);
 }
 
 message Project{
@@ -16,6 +16,10 @@ message Project{
   string clientKey = 5;
   int64 createTime = 6;
   int64 updateTime = 7;
+}
+
+message ProjectOperationResponse{
+  int64 id = 1;
 }
 
 message PageRequest{

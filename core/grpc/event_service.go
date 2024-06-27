@@ -19,7 +19,7 @@ func (EventServer) SubscribeEvents(sub *pb.Subscriber, srv pb.EventService_Subsc
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	subscribe.Sub(sub.GetName(), func(event subscribe.ChannelEvent) {
 		err := srv.Send(&pb.Event{
-			Type: "update",
+			Type: event.ChangeType,
 			Data: &pb.UpdateData{
 				ProjectId:  event.ProjectId,
 				ProjectKey: event.ProjectKey,

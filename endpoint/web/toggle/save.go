@@ -104,7 +104,5 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 	}
 	resp.Data(c, gin.H{
 		"toggleId": toggle.GetId(),
-		"title":    toggle.GetTitle(),
-		"key":      toggle.GetKey(),
 	})
 }

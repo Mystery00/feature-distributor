@@ -62,6 +62,7 @@ FOR:
 			}
 			logrus.Debugf("receive event: %v", data)
 			subscribe.Pub(subscribe.ChannelEvent{
+				ChangeType: event.GetType(),
 				ProjectId:  data.GetProjectId(),
 				ProjectKey: data.GetProjectKey(),
 				ToggleId:   data.ToggleId,

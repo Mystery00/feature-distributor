@@ -8,6 +8,7 @@ import (
 	"feature-distributor/core/db/enum"
 	"feature-distributor/core/db/model"
 	"feature-distributor/core/db/query"
+	"feature-distributor/core/notify"
 	"feature-distributor/core/pb"
 	"feature-distributor/core/provider"
 	"github.com/open-feature/go-sdk/openfeature"
@@ -141,7 +142,7 @@ func getToggle(ctx context.Context, evalContext openfeature.EvaluationContext, t
 	}
 }
 
-func (s *ToggleServer) SaveToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, error) {
+func (s *ToggleServer) SaveToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
 	if in.ToggleId != nil {
 		return updateToggle(ctx, in)
 	} else {
@@ -149,11 +150,13 @@ func (s *ToggleServer) SaveToggle(ctx context.Context, in *pb.SaveToggleRequest)
 	}
 }
 
-func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, error) {
+func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
 	t := query.Toggle
 	tv := query.ToggleValue
+	p := query.Project
 	tc := t.WithContext(ctx)
 	tvc := tv.WithContext(ctx)
+	pc := p.WithContext(ctx)
 	//查询是否存在相同的key
 	toggle, err := tc.Where(t.Key.Eq(in.GetKey())).First()
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -206,14 +209,20 @@ func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 	if err != nil {
 		return nil, err
 	}
-	return convertToToggle(toggle, values), nil
+	project, _ := pc.Where(p.ID.Eq(toggle.ProjectID)).First()
+	notify.ToggleChange(notify.TypeCreate, project.Key, *toggle)
+	return &pb.ToggleOperationResponse{
+		Id: toggle.ID,
+	}, nil
 }
 
-func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, error) {
+func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
 	t := query.Toggle
 	tv := query.ToggleValue
+	p := query.Project
 	tc := t.WithContext(ctx)
 	tvc := tv.WithContext(ctx)
+	pc := p.WithContext(ctx)
 	//检测数据
 	if int(in.GetDefaultValue()) <= 0 || int(in.GetDisabledValue()) <= 0 || int(in.GetDefaultValue()) > len(in.GetValues()) || int(in.GetDisabledValue()) > len(in.GetValues()) {
 		return nil, alert.Error(alert.InvalidToggleValue)
@@ -248,7 +257,41 @@ func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.Toggle, er
 		return nil, err
 	}
 	toggle, _ := tc.Where(t.ID.Eq(in.GetToggleId())).First()
-	return convertToToggle(toggle, values), nil
+	project, _ := pc.Where(p.ID.Eq(toggle.ProjectID)).First()
+	notify.ToggleChange(notify.TypeUpdate, project.Key, *toggle)
+	return &pb.ToggleOperationResponse{
+		Id: toggle.ID,
+	}, nil
+}
+
+func (s *ToggleServer) DeleteToggle(ctx context.Context, in *pb.GetToggleRequest) (*pb.ToggleOperationResponse, error) {
+	t := query.Toggle
+	tv := query.ToggleValue
+	p := query.Project
+	tc := t.WithContext(ctx)
+	tvc := tv.WithContext(ctx)
+	pc := p.WithContext(ctx)
+
+	toggle, err := tc.Where(t.ID.Eq(in.GetId())).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, alert.Error(alert.ToggleNotExist)
+		}
+		return nil, err
+	}
+	project, _ := pc.Where(p.ID.Eq(toggle.ProjectID)).First()
+	_, err = tc.Where(t.ID.Eq(in.GetId())).Delete()
+	if err != nil {
+		return nil, err
+	}
+	_, err = tvc.Where(tv.ToggleID.Eq(in.GetId())).Delete()
+	if err != nil {
+		return nil, err
+	}
+	notify.ToggleChange(notify.TypeDelete, project.Key, *toggle)
+	return &pb.ToggleOperationResponse{
+		Id: toggle.ID,
+	}, nil
 }
 
 func convertToToggle(toggle *model.Toggle, values []*model.ToggleValue) *pb.Toggle {

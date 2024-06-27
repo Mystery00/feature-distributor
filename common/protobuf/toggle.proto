@@ -4,8 +4,8 @@ service ToggleService {
   rpc ListToggle(ListToggleRequest) returns (ListToggleResponse);
   rpc GetToggle(GetToggleRequest) returns (Toggle);
   rpc GetToggleValue(GetToggleValueRequest) returns (GetToggleValueResponse);
-  rpc SaveToggle(SaveToggleRequest) returns (Toggle);
-  rpc DeleteToggle(GetToggleRequest) returns (Toggle);
+  rpc SaveToggle(SaveToggleRequest) returns (ToggleOperationResponse);
+  rpc DeleteToggle(GetToggleRequest) returns (ToggleOperationResponse);
 }
 
 message ReqUser {
@@ -26,6 +26,10 @@ message Toggle{
   int64 createTime = 10;
   int64 updateTime = 11;
   repeated ToggleValue values = 12;
+}
+
+message ToggleOperationResponse{
+  int64 id = 1;
 }
 
 message ToggleValue{

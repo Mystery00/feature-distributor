@@ -33,8 +33,8 @@ type ToggleServiceClient interface {
 	ListToggle(ctx context.Context, in *ListToggleRequest, opts ...grpc.CallOption) (*ListToggleResponse, error)
 	GetToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error)
 	GetToggleValue(ctx context.Context, in *GetToggleValueRequest, opts ...grpc.CallOption) (*GetToggleValueResponse, error)
-	SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*Toggle, error)
-	DeleteToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error)
+	SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error)
+	DeleteToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error)
 }
 
 type toggleServiceClient struct {
@@ -72,8 +72,8 @@ func (c *toggleServiceClient) GetToggleValue(ctx context.Context, in *GetToggleV
 	return out, nil
 }
 
-func (c *toggleServiceClient) SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*Toggle, error) {
-	out := new(Toggle)
+func (c *toggleServiceClient) SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error) {
+	out := new(ToggleOperationResponse)
 	err := c.cc.Invoke(ctx, ToggleService_SaveToggle_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,8 +81,8 @@ func (c *toggleServiceClient) SaveToggle(ctx context.Context, in *SaveToggleRequ
 	return out, nil
 }
 
-func (c *toggleServiceClient) DeleteToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error) {
-	out := new(Toggle)
+func (c *toggleServiceClient) DeleteToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error) {
+	out := new(ToggleOperationResponse)
 	err := c.cc.Invoke(ctx, ToggleService_DeleteToggle_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -97,8 +97,8 @@ type ToggleServiceServer interface {
 	ListToggle(context.Context, *ListToggleRequest) (*ListToggleResponse, error)
 	GetToggle(context.Context, *GetToggleRequest) (*Toggle, error)
 	GetToggleValue(context.Context, *GetToggleValueRequest) (*GetToggleValueResponse, error)
-	SaveToggle(context.Context, *SaveToggleRequest) (*Toggle, error)
-	DeleteToggle(context.Context, *GetToggleRequest) (*Toggle, error)
+	SaveToggle(context.Context, *SaveToggleRequest) (*ToggleOperationResponse, error)
+	DeleteToggle(context.Context, *GetToggleRequest) (*ToggleOperationResponse, error)
 	mustEmbedUnimplementedToggleServiceServer()
 }
 
@@ -115,10 +115,10 @@ func (UnimplementedToggleServiceServer) GetToggle(context.Context, *GetToggleReq
 func (UnimplementedToggleServiceServer) GetToggleValue(context.Context, *GetToggleValueRequest) (*GetToggleValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToggleValue not implemented")
 }
-func (UnimplementedToggleServiceServer) SaveToggle(context.Context, *SaveToggleRequest) (*Toggle, error) {
+func (UnimplementedToggleServiceServer) SaveToggle(context.Context, *SaveToggleRequest) (*ToggleOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveToggle not implemented")
 }
-func (UnimplementedToggleServiceServer) DeleteToggle(context.Context, *GetToggleRequest) (*Toggle, error) {
+func (UnimplementedToggleServiceServer) DeleteToggle(context.Context, *GetToggleRequest) (*ToggleOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteToggle not implemented")
 }
 func (UnimplementedToggleServiceServer) mustEmbedUnimplementedToggleServiceServer() {}

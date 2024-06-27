@@ -76,7 +76,7 @@ func (s *CoreServer) GetProject(ctx context.Context, in *pb.ProjectRequest) (*pb
 	return convertToProject(project), nil
 }
 
-func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest) (*pb.Project, error) {
+func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest) (*pb.ProjectOperationResponse, error) {
 	p := query.Project
 	pc := p.WithContext(ctx)
 	var project *model.Project
@@ -96,6 +96,7 @@ func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest)
 			return nil, err
 		}
 		project, _ = pc.Where(p.ID.Eq(in.GetProjectId())).First()
+		notify.ProjectChange(notify.TypeUpdate, *project)
 	} else {
 		//查询是否存在相同的key
 		pro, err := pc.Where(p.Key.Eq(in.GetKey())).First()
@@ -116,12 +117,14 @@ func (s *CoreServer) SaveProject(ctx context.Context, in *pb.SaveProjectRequest)
 			return nil, err
 		}
 		project = pro
+		notify.ProjectChange(notify.TypeCreate, *project)
 	}
-	notify.ProjectChange(*project)
-	return convertToProject(project), nil
+	return &pb.ProjectOperationResponse{
+		Id: project.ID,
+	}, nil
 }
 
-func (s *CoreServer) DeleteProject(ctx context.Context, in *pb.ProjectRequest) (*pb.Project, error) {
+func (s *CoreServer) DeleteProject(ctx context.Context, in *pb.ProjectRequest) (*pb.ProjectOperationResponse, error) {
 	p := query.Project
 	pc := p.WithContext(ctx)
 	project, err := pc.Where(p.ID.Eq(in.GetId())).First()
@@ -135,8 +138,10 @@ func (s *CoreServer) DeleteProject(ctx context.Context, in *pb.ProjectRequest) (
 	if err != nil {
 		return nil, err
 	}
-	notify.ProjectChange(*project)
-	return convertToProject(project), nil
+	notify.ProjectChange(notify.TypeDelete, *project)
+	return &pb.ProjectOperationResponse{
+		Id: project.ID,
+	}, nil
 }
 
 func convertToProject(p *model.Project) *pb.Project {

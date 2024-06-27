@@ -33,8 +33,8 @@ type CoreServiceClient interface {
 	ListProjects(ctx context.Context, in *PageRequest, opts ...grpc.CallOption) (*ProjectPageResponse, error)
 	CheckProject(ctx context.Context, in *CheckProjectRequest, opts ...grpc.CallOption) (*CheckProjectResponse, error)
 	GetProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*Project, error)
-	DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error)
+	SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*ProjectOperationResponse, error)
+	DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*ProjectOperationResponse, error)
 }
 
 type coreServiceClient struct {
@@ -72,8 +72,8 @@ func (c *coreServiceClient) GetProject(ctx context.Context, in *ProjectRequest, 
 	return out, nil
 }
 
-func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*Project, error) {
-	out := new(Project)
+func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequest, opts ...grpc.CallOption) (*ProjectOperationResponse, error) {
+	out := new(ProjectOperationResponse)
 	err := c.cc.Invoke(ctx, CoreService_SaveProject_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -81,8 +81,8 @@ func (c *coreServiceClient) SaveProject(ctx context.Context, in *SaveProjectRequ
 	return out, nil
 }
 
-func (c *coreServiceClient) DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*Project, error) {
-	out := new(Project)
+func (c *coreServiceClient) DeleteProject(ctx context.Context, in *ProjectRequest, opts ...grpc.CallOption) (*ProjectOperationResponse, error) {
+	out := new(ProjectOperationResponse)
 	err := c.cc.Invoke(ctx, CoreService_DeleteProject_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -97,8 +97,8 @@ type CoreServiceServer interface {
 	ListProjects(context.Context, *PageRequest) (*ProjectPageResponse, error)
 	CheckProject(context.Context, *CheckProjectRequest) (*CheckProjectResponse, error)
 	GetProject(context.Context, *ProjectRequest) (*Project, error)
-	SaveProject(context.Context, *SaveProjectRequest) (*Project, error)
-	DeleteProject(context.Context, *ProjectRequest) (*Project, error)
+	SaveProject(context.Context, *SaveProjectRequest) (*ProjectOperationResponse, error)
+	DeleteProject(context.Context, *ProjectRequest) (*ProjectOperationResponse, error)
 	mustEmbedUnimplementedCoreServiceServer()
 }
 
@@ -115,10 +115,10 @@ func (UnimplementedCoreServiceServer) CheckProject(context.Context, *CheckProjec
 func (UnimplementedCoreServiceServer) GetProject(context.Context, *ProjectRequest) (*Project, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProject not implemented")
 }
-func (UnimplementedCoreServiceServer) SaveProject(context.Context, *SaveProjectRequest) (*Project, error) {
+func (UnimplementedCoreServiceServer) SaveProject(context.Context, *SaveProjectRequest) (*ProjectOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveProject not implemented")
 }
-func (UnimplementedCoreServiceServer) DeleteProject(context.Context, *ProjectRequest) (*Project, error) {
+func (UnimplementedCoreServiceServer) DeleteProject(context.Context, *ProjectRequest) (*ProjectOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProject not implemented")
 }
 func (UnimplementedCoreServiceServer) mustEmbedUnimplementedCoreServiceServer() {}

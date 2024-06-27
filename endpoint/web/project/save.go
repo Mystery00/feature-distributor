@@ -35,8 +35,6 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 		}
 	}
 	resp.Data(c, gin.H{
-		"id":   project.GetId(),
-		"name": project.GetName(),
-		"key":  project.GetKey(),
+		"id": project.GetId(),
 	})
 }
