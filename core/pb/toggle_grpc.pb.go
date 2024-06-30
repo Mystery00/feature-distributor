@@ -22,7 +22,7 @@ const (
 	ToggleService_ListToggle_FullMethodName     = "/ToggleService/ListToggle"
 	ToggleService_GetToggle_FullMethodName      = "/ToggleService/GetToggle"
 	ToggleService_GetToggleValue_FullMethodName = "/ToggleService/GetToggleValue"
-	ToggleService_SaveToggle_FullMethodName     = "/ToggleService/SaveToggle"
+	ToggleService_CreateToggle_FullMethodName   = "/ToggleService/CreateToggle"
 	ToggleService_DeleteToggle_FullMethodName   = "/ToggleService/DeleteToggle"
 )
 
@@ -33,7 +33,7 @@ type ToggleServiceClient interface {
 	ListToggle(ctx context.Context, in *ListToggleRequest, opts ...grpc.CallOption) (*ListToggleResponse, error)
 	GetToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*Toggle, error)
 	GetToggleValue(ctx context.Context, in *GetToggleValueRequest, opts ...grpc.CallOption) (*GetToggleValueResponse, error)
-	SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error)
+	CreateToggle(ctx context.Context, in *CreateToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error)
 	DeleteToggle(ctx context.Context, in *GetToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error)
 }
 
@@ -72,9 +72,9 @@ func (c *toggleServiceClient) GetToggleValue(ctx context.Context, in *GetToggleV
 	return out, nil
 }
 
-func (c *toggleServiceClient) SaveToggle(ctx context.Context, in *SaveToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error) {
+func (c *toggleServiceClient) CreateToggle(ctx context.Context, in *CreateToggleRequest, opts ...grpc.CallOption) (*ToggleOperationResponse, error) {
 	out := new(ToggleOperationResponse)
-	err := c.cc.Invoke(ctx, ToggleService_SaveToggle_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ToggleService_CreateToggle_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ type ToggleServiceServer interface {
 	ListToggle(context.Context, *ListToggleRequest) (*ListToggleResponse, error)
 	GetToggle(context.Context, *GetToggleRequest) (*Toggle, error)
 	GetToggleValue(context.Context, *GetToggleValueRequest) (*GetToggleValueResponse, error)
-	SaveToggle(context.Context, *SaveToggleRequest) (*ToggleOperationResponse, error)
+	CreateToggle(context.Context, *CreateToggleRequest) (*ToggleOperationResponse, error)
 	DeleteToggle(context.Context, *GetToggleRequest) (*ToggleOperationResponse, error)
 	mustEmbedUnimplementedToggleServiceServer()
 }
@@ -115,8 +115,8 @@ func (UnimplementedToggleServiceServer) GetToggle(context.Context, *GetToggleReq
 func (UnimplementedToggleServiceServer) GetToggleValue(context.Context, *GetToggleValueRequest) (*GetToggleValueResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetToggleValue not implemented")
 }
-func (UnimplementedToggleServiceServer) SaveToggle(context.Context, *SaveToggleRequest) (*ToggleOperationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SaveToggle not implemented")
+func (UnimplementedToggleServiceServer) CreateToggle(context.Context, *CreateToggleRequest) (*ToggleOperationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateToggle not implemented")
 }
 func (UnimplementedToggleServiceServer) DeleteToggle(context.Context, *GetToggleRequest) (*ToggleOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteToggle not implemented")
@@ -188,20 +188,20 @@ func _ToggleService_GetToggleValue_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ToggleService_SaveToggle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SaveToggleRequest)
+func _ToggleService_CreateToggle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateToggleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ToggleServiceServer).SaveToggle(ctx, in)
+		return srv.(ToggleServiceServer).CreateToggle(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ToggleService_SaveToggle_FullMethodName,
+		FullMethod: ToggleService_CreateToggle_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ToggleServiceServer).SaveToggle(ctx, req.(*SaveToggleRequest))
+		return srv.(ToggleServiceServer).CreateToggle(ctx, req.(*CreateToggleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -244,8 +244,8 @@ var ToggleService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ToggleService_GetToggleValue_Handler,
 		},
 		{
-			MethodName: "SaveToggle",
-			Handler:    _ToggleService_SaveToggle_Handler,
+			MethodName: "CreateToggle",
+			Handler:    _ToggleService_CreateToggle_Handler,
 		},
 		{
 			MethodName: "DeleteToggle",

@@ -8,8 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type SaveReq struct {
-	ToggleId    *int64     `json:"toggleId"`
+type CreateReq struct {
 	ProjectId   int64      `json:"projectId" binding:"required" validate:"required"`
 	Key         string     `json:"key" binding:"required" validate:"required"`
 	Enabled     bool       `json:"enabled"`
@@ -27,8 +26,8 @@ type ValueReq struct {
 	DisabledValue bool   `json:"disabledValue"`
 }
 
-var save gin.HandlerFunc = func(c *gin.Context) {
-	var req SaveReq
+var create gin.HandlerFunc = func(c *gin.Context) {
+	var req CreateReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		resp.Err(c, 400, err)
@@ -45,7 +44,6 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 		resp.Fail(c, 400, "invalid values")
 		return
 	}
-	var createMode = req.ToggleId == nil
 	defaultValueIndex := 0
 	disabledValueIndex := 0
 	for i, v := range req.Values {
@@ -64,28 +62,21 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 			disabledValueIndex = i + 1
 		}
 	}
-	if !createMode {
-		if defaultValueIndex == 0 {
-			resp.Fail(c, 400, "default value not found")
-			return
-		}
-	}
 	if disabledValueIndex == 0 {
 		resp.Fail(c, 400, "disabled value not found")
 		return
 	}
 	//保存数据
 	client := grpc.GetToggleClient()
-	values := make([]*pb.SaveToggleValue, 0, len(req.Values))
+	values := make([]*pb.ToggleValue, 0, len(req.Values))
 	for _, v := range req.Values {
-		values = append(values, &pb.SaveToggleValue{
+		values = append(values, &pb.ToggleValue{
 			Title:       v.Title,
 			Value:       v.Value,
 			Description: v.Description,
 		})
 	}
-	toggle, err := client.SaveToggle(c.Request.Context(), &pb.SaveToggleRequest{
-		ToggleId:      req.ToggleId,
+	toggle, err := client.CreateToggle(c.Request.Context(), &pb.CreateToggleRequest{
 		ProjectId:     req.ProjectId,
 		Enabled:       req.Enabled,
 		Title:         req.Title,
@@ -97,10 +88,8 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 		Values:        values,
 	})
 	if err != nil {
-		if err != nil {
-			grpc.HandleGRPCError(c, err)
-			return
-		}
+		grpc.HandleGRPCError(c, err)
+		return
 	}
 	resp.Data(c, gin.H{
 		"toggleId": toggle.GetId(),

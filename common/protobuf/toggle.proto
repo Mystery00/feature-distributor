@@ -4,7 +4,7 @@ service ToggleService {
   rpc ListToggle(ListToggleRequest) returns (ListToggleResponse);
   rpc GetToggle(GetToggleRequest) returns (Toggle);
   rpc GetToggleValue(GetToggleValueRequest) returns (GetToggleValueResponse);
-  rpc SaveToggle(SaveToggleRequest) returns (ToggleOperationResponse);
+  rpc CreateToggle(CreateToggleRequest) returns (ToggleOperationResponse);
   rpc DeleteToggle(GetToggleRequest) returns (ToggleOperationResponse);
 }
 
@@ -33,12 +33,10 @@ message ToggleOperationResponse{
 }
 
 message ToggleValue{
-  int64 id = 1;
-  int64 toggleId = 2;
-  string title = 3;
-  string value = 4;
-  string description = 5;
-  int64 createTime = 6;
+  optional int64 id = 1;
+  string title = 2;
+  string value = 3;
+  string description = 4;
 }
 
 message ListToggleRequest{
@@ -77,21 +75,14 @@ message GetToggleValueResponse{
   string resultValue = 2;
 }
 
-message SaveToggleRequest{
-  optional int64 toggleId = 1;
-  int64 projectId = 2;
-  bool enabled = 3;
-  string title = 4;
-  string key = 5;
-  string description = 6;
-  string valueType = 7;
-  int64 defaultValue = 8;
-  int64 disabledValue = 9;
-  repeated SaveToggleValue values = 10;
-}
-
-message SaveToggleValue{
-  string title = 1;
-  string value = 2;
-  string description = 3;
+message CreateToggleRequest{
+  int64 projectId = 1;
+  bool enabled = 2;
+  string title = 3;
+  string key = 4;
+  string description = 5;
+  string valueType = 6;
+  int64 defaultValue = 7;
+  int64 disabledValue = 8;
+  repeated ToggleValue values = 9;
 }

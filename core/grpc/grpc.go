@@ -28,5 +28,6 @@ func Run(addr string) error {
 	pb.RegisterUserServiceServer(server, &UserServer{})
 	pb.RegisterCoreServiceServer(server, &CoreServer{})
 	pb.RegisterToggleServiceServer(server, &ToggleServer{})
+	pb.RegisterReqGroupServiceServer(server, &ReqGroupServer{})
 	return server.Serve(lis)
 }

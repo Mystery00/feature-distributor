@@ -21,9 +21,9 @@ var (
 )
 
 func ParseType(s string) *Type {
-	for _, valueType := range values {
-		if valueType.String() == s {
-			return &valueType
+	for _, t := range values {
+		if t.String() == s {
+			return &t
 		}
 	}
 	return nil

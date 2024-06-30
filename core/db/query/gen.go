@@ -16,49 +16,69 @@ import (
 )
 
 var (
-	Q           = new(Query)
-	Project     *project
-	Toggle      *toggle
-	ToggleValue *toggleValue
-	User        *user
+	Q               = new(Query)
+	Project         *project
+	ReqGroup        *reqGroup
+	ReqGroupOption  *reqGroupOption
+	Toggle          *toggle
+	ToggleRule      *toggleRule
+	ToggleRuleValue *toggleRuleValue
+	ToggleValue     *toggleValue
+	User            *user
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	Project = &Q.Project
+	ReqGroup = &Q.ReqGroup
+	ReqGroupOption = &Q.ReqGroupOption
 	Toggle = &Q.Toggle
+	ToggleRule = &Q.ToggleRule
+	ToggleRuleValue = &Q.ToggleRuleValue
 	ToggleValue = &Q.ToggleValue
 	User = &Q.User
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:          db,
-		Project:     newProject(db, opts...),
-		Toggle:      newToggle(db, opts...),
-		ToggleValue: newToggleValue(db, opts...),
-		User:        newUser(db, opts...),
+		db:              db,
+		Project:         newProject(db, opts...),
+		ReqGroup:        newReqGroup(db, opts...),
+		ReqGroupOption:  newReqGroupOption(db, opts...),
+		Toggle:          newToggle(db, opts...),
+		ToggleRule:      newToggleRule(db, opts...),
+		ToggleRuleValue: newToggleRuleValue(db, opts...),
+		ToggleValue:     newToggleValue(db, opts...),
+		User:            newUser(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Project     project
-	Toggle      toggle
-	ToggleValue toggleValue
-	User        user
+	Project         project
+	ReqGroup        reqGroup
+	ReqGroupOption  reqGroupOption
+	Toggle          toggle
+	ToggleRule      toggleRule
+	ToggleRuleValue toggleRuleValue
+	ToggleValue     toggleValue
+	User            user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		Project:     q.Project.clone(db),
-		Toggle:      q.Toggle.clone(db),
-		ToggleValue: q.ToggleValue.clone(db),
-		User:        q.User.clone(db),
+		db:              db,
+		Project:         q.Project.clone(db),
+		ReqGroup:        q.ReqGroup.clone(db),
+		ReqGroupOption:  q.ReqGroupOption.clone(db),
+		Toggle:          q.Toggle.clone(db),
+		ToggleRule:      q.ToggleRule.clone(db),
+		ToggleRuleValue: q.ToggleRuleValue.clone(db),
+		ToggleValue:     q.ToggleValue.clone(db),
+		User:            q.User.clone(db),
 	}
 }
 
@@ -72,27 +92,39 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:          db,
-		Project:     q.Project.replaceDB(db),
-		Toggle:      q.Toggle.replaceDB(db),
-		ToggleValue: q.ToggleValue.replaceDB(db),
-		User:        q.User.replaceDB(db),
+		db:              db,
+		Project:         q.Project.replaceDB(db),
+		ReqGroup:        q.ReqGroup.replaceDB(db),
+		ReqGroupOption:  q.ReqGroupOption.replaceDB(db),
+		Toggle:          q.Toggle.replaceDB(db),
+		ToggleRule:      q.ToggleRule.replaceDB(db),
+		ToggleRuleValue: q.ToggleRuleValue.replaceDB(db),
+		ToggleValue:     q.ToggleValue.replaceDB(db),
+		User:            q.User.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Project     IProjectDo
-	Toggle      IToggleDo
-	ToggleValue IToggleValueDo
-	User        IUserDo
+	Project         IProjectDo
+	ReqGroup        IReqGroupDo
+	ReqGroupOption  IReqGroupOptionDo
+	Toggle          IToggleDo
+	ToggleRule      IToggleRuleDo
+	ToggleRuleValue IToggleRuleValueDo
+	ToggleValue     IToggleValueDo
+	User            IUserDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Project:     q.Project.WithContext(ctx),
-		Toggle:      q.Toggle.WithContext(ctx),
-		ToggleValue: q.ToggleValue.WithContext(ctx),
-		User:        q.User.WithContext(ctx),
+		Project:         q.Project.WithContext(ctx),
+		ReqGroup:        q.ReqGroup.WithContext(ctx),
+		ReqGroupOption:  q.ReqGroupOption.WithContext(ctx),
+		Toggle:          q.Toggle.WithContext(ctx),
+		ToggleRule:      q.ToggleRule.WithContext(ctx),
+		ToggleRuleValue: q.ToggleRuleValue.WithContext(ctx),
+		ToggleValue:     q.ToggleValue.WithContext(ctx),
+		User:            q.User.WithContext(ctx),
 	}
 }
 

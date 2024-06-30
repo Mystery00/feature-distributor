@@ -142,15 +142,7 @@ func getToggle(ctx context.Context, evalContext openfeature.EvaluationContext, t
 	}
 }
 
-func (s *ToggleServer) SaveToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
-	if in.ToggleId != nil {
-		return updateToggle(ctx, in)
-	} else {
-		return insertToggle(ctx, in)
-	}
-}
-
-func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
+func (s *ToggleServer) CreateToggle(ctx context.Context, in *pb.CreateToggleRequest) (*pb.ToggleOperationResponse, error) {
 	t := query.Toggle
 	tv := query.ToggleValue
 	p := query.Project
@@ -186,7 +178,7 @@ func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOper
 	if err != nil {
 		return nil, err
 	}
-	//删除所有旧的值
+	//保存值
 	values := make([]*model.ToggleValue, 0)
 	for _, item := range in.GetValues() {
 		toggleValue := &model.ToggleValue{
@@ -211,54 +203,6 @@ func insertToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOper
 	}
 	project, _ := pc.Where(p.ID.Eq(toggle.ProjectID)).First()
 	notify.ToggleChange(notify.TypeCreate, project.Key, *toggle)
-	return &pb.ToggleOperationResponse{
-		Id: toggle.ID,
-	}, nil
-}
-
-func updateToggle(ctx context.Context, in *pb.SaveToggleRequest) (*pb.ToggleOperationResponse, error) {
-	t := query.Toggle
-	tv := query.ToggleValue
-	p := query.Project
-	tc := t.WithContext(ctx)
-	tvc := tv.WithContext(ctx)
-	pc := p.WithContext(ctx)
-	//检测数据
-	if int(in.GetDefaultValue()) <= 0 || int(in.GetDisabledValue()) <= 0 || int(in.GetDefaultValue()) > len(in.GetValues()) || int(in.GetDisabledValue()) > len(in.GetValues()) {
-		return nil, alert.Error(alert.InvalidToggleValue)
-	}
-	//删除所有旧的值
-	values := make([]*model.ToggleValue, 0)
-	for _, item := range in.GetValues() {
-		toggleValue := &model.ToggleValue{
-			ToggleID:    in.GetToggleId(),
-			Title:       item.GetTitle(),
-			Value:       item.GetValue(),
-			Description: item.GetDescription(),
-		}
-		err := tvc.Save(toggleValue)
-		if err != nil {
-			return nil, err
-		}
-		values = append(values, toggleValue)
-	}
-	//保存数据
-	defaultValueId := values[int(in.GetDefaultValue())-1].ID
-	disabledValueId := values[int(in.GetDisabledValue())-1].ID
-	_, err := tc.Where(t.ID.Eq(in.GetToggleId())).Updates(model.Toggle{
-		Enable:                 in.GetEnabled(),
-		Title:                  in.GetTitle(),
-		Description:            in.GetDescription(),
-		ValueType:              int8(enum.ParseValueType(in.GetValueType())),
-		DefaultValue:           defaultValueId,
-		ReturnValueWhenDisable: disabledValueId,
-	})
-	if err != nil {
-		return nil, err
-	}
-	toggle, _ := tc.Where(t.ID.Eq(in.GetToggleId())).First()
-	project, _ := pc.Where(p.ID.Eq(toggle.ProjectID)).First()
-	notify.ToggleChange(notify.TypeUpdate, project.Key, *toggle)
 	return &pb.ToggleOperationResponse{
 		Id: toggle.ID,
 	}, nil
@@ -301,12 +245,10 @@ func convertToToggle(toggle *model.Toggle, values []*model.ToggleValue) *pb.Togg
 	valueList := make([]*pb.ToggleValue, 0)
 	for _, item := range values {
 		valueList = append(valueList, &pb.ToggleValue{
-			Id:          item.ID,
-			ToggleId:    item.ToggleID,
+			Id:          &item.ID,
 			Title:       item.Title,
 			Value:       item.Value,
 			Description: item.Description,
-			CreateTime:  item.CreateTime.UnixMilli(),
 		})
 	}
 	return &pb.Toggle{

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+service ReqGroupService {
+  rpc ListReqGroup(ListReqGroupRequest) returns (ListReqGroupResponse);
+  rpc GetReqGroup(GetReqGroupRequest) returns (ReqGroup);
+  rpc CreateReqGroup(ReqGroup) returns (ReqGroupOperationResponse);
+  rpc DeleteReqGroup(GetReqGroupRequest) returns (ReqGroupOperationResponse);
+}
+
+message ReqGroup {
+  string title = 1;
+  string key = 2;
+  string description = 3;
+  repeated ReqGroupOption options = 4;
+}
+
+message ReqGroupOption {
+  int64 index = 1;
+  string attrType = 2;
+  string attrName = 3;
+  string operationType = 4;
+  string attrValue = 5;
+}
+
+message ReqGroupOperationResponse{
+  int64 groupId = 1;
+}
+
+message ListReqGroupRequest{
+  int64 index = 1;
+  int64 size = 2;
+}
+
+message ListReqGroupResponse{
+  int64 total = 1;
+  repeated ListItemReqGroup groups = 2;
+}
+
+message GetReqGroupRequest{
+  int64 groupId = 1;
+}
+
+message ListItemReqGroup {
+  int64 groupId = 1;
+  string title = 2;
+  string key = 3;
+  string description = 4;
+  int64 createTime = 5;
+  int64 updateTime = 6;
+}

@@ -5,22 +5,22 @@ import "feature-distributor/common/value"
 type ValueType int8
 
 const (
-	BoolValueType   ValueType = 1
-	StringValueType ValueType = 2
-	FloatValueType  ValueType = 3
-	IntValueType    ValueType = 4
-	JsonValueType   ValueType = 5
+	BoolValueType ValueType = 1 + iota
+	StringValueType
+	FloatValueType
+	IntValueType
+	JsonValueType
 )
 
 var (
-	values = []ValueType{
+	valueTypes = []ValueType{
 		BoolValueType,
 		StringValueType,
 		FloatValueType,
 		IntValueType,
 		JsonValueType,
 	}
-	typeMap = map[ValueType]value.Type{
+	valueTypeMap = map[ValueType]value.Type{
 		BoolValueType:   value.BoolValueType,
 		StringValueType: value.StringValueType,
 		FloatValueType:  value.FloatValueType,
@@ -34,7 +34,7 @@ func ParseValueType(s string) ValueType {
 	if vType == nil {
 		panic("unknown value type")
 	}
-	for k, v := range typeMap {
+	for k, v := range valueTypeMap {
 		if v == *vType {
 			return k
 		}
@@ -43,13 +43,13 @@ func ParseValueType(s string) ValueType {
 }
 
 func (v ValueType) String() string {
-	return typeMap[v].String()
+	return valueTypeMap[v].String()
 }
 
 func ValueTypeEnum(v int8) ValueType {
-	for _, valueType := range values {
-		if int8(valueType) == v {
-			return valueType
+	for _, t := range valueTypes {
+		if int8(t) == v {
+			return t
 		}
 	}
 	panic("unknown value type")

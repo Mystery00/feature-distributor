@@ -16,6 +16,7 @@ var eventClient pb.EventServiceClient
 var coreClient pb.CoreServiceClient
 var toggleClient pb.ToggleServiceClient
 var userClient pb.UserServiceClient
+var reqGroupClient pb.ReqGroupServiceClient
 
 func Init() {
 	log := logrus.WithField("source", "grpc")
@@ -38,6 +39,7 @@ func Init() {
 	coreClient = pb.NewCoreServiceClient(conn)
 	userClient = pb.NewUserServiceClient(conn)
 	toggleClient = pb.NewToggleServiceClient(conn)
+	reqGroupClient = pb.NewReqGroupServiceClient(conn)
 }
 
 func Close() error {
@@ -58,4 +60,8 @@ func GetUserClient() pb.UserServiceClient {
 
 func GetToggleClient() pb.ToggleServiceClient {
 	return toggleClient
+}
+
+func GetReqGroupClient() pb.ReqGroupServiceClient {
+	return reqGroupClient
 }

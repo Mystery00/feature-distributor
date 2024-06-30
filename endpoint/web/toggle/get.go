@@ -30,8 +30,8 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 			"title":         v.GetTitle(),
 			"value":         v.GetValue(),
 			"description":   v.GetDescription(),
-			"default":       v.Id == toggle.DefaultValue,
-			"disabledValue": v.Id == toggle.DisabledValue,
+			"default":       v.GetId() == toggle.DefaultValue,
+			"disabledValue": v.GetId() == toggle.DisabledValue,
 		})
 	}
 	c.JSON(200, gin.H{
