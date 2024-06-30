@@ -8,6 +8,7 @@ import (
 
 func SetMiddleware(router *gin.Engine) {
 	router.Use(corsMiddleware)
+	router.Use(i18nMiddleware)
 	router.Use(clientMiddleware)
 	router.Use(serverMiddleware)
 	router.Use(adminSessionMiddleware)

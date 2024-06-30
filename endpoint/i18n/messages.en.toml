@@ -1,0 +1,26 @@
+[common]
+health = "Server running"
+server.error = "Server error"
+unknown.error = "Unknown error"
+invalid.params = "Invalid parameters"
+
+[user]
+wrong.password = "username or password is incorrect"
+
+[project]
+not.exist = "Project not exist"
+exist = "Project already exist"
+
+[toggle]
+not.exist = "Toggle not exist"
+exist = "Toggle already exist"
+invalid.value.type = "Invalid toggle value type"
+invalid.value = "Invalid toggle value"
+duplicate.default.value = "Duplicate default value"
+duplicate.disabled.value = "Duplicate disabled value"
+disabled.value.not.found = "Disabled value not found"
+
+[req-group]
+not.exist = "Request group not exist"
+exist = "Request group already exist"
+invalid.operation.type = "Invalid operation type"

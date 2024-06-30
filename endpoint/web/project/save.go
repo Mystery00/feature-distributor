@@ -19,7 +19,7 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		logrus.Info("invalid params", err)
-		resp.Fail(c, 400, "invalid params")
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	client := grpc.GetCoreClient()

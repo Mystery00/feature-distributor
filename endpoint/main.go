@@ -6,6 +6,7 @@ import (
 	"feature-distributor/common/logger"
 	"feature-distributor/endpoint/event"
 	"feature-distributor/endpoint/grpc"
+	"feature-distributor/endpoint/i18n"
 	"feature-distributor/endpoint/middleware"
 	"feature-distributor/endpoint/redis"
 	"feature-distributor/endpoint/web"
@@ -25,6 +26,7 @@ func main() {
 		address = ":7002"
 	}
 	logger.InitLog()
+	i18n.Init()
 	grpc.Init()
 	event.Init()
 

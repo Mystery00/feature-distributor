@@ -12,6 +12,7 @@ import (
 	"feature-distributor/endpoint/web/resp"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -24,7 +25,8 @@ type LoginReq struct {
 var login gin.HandlerFunc = func(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		resp.Err(c, 400, err)
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	client := grpc.GetUserClient()
@@ -37,7 +39,7 @@ var login gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	if response.GetCode() != http.StatusOK {
-		resp.Fail(c, 400, "username or password is incorrect")
+		resp.FailTrans(c, 400, "user.wrong.password")
 		return
 	}
 	token := generateRandomString(req.Username)

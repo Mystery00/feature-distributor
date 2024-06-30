@@ -5,13 +5,15 @@ import (
 	"feature-distributor/endpoint/pb"
 	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 var remove gin.HandlerFunc = func(c *gin.Context) {
 	var t toggleId
 	err := c.ShouldBindQuery(&t)
 	if err != nil {
-		resp.Err(c, 400, err)
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	client := grpc.GetToggleClient()

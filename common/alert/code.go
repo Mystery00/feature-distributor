@@ -13,8 +13,8 @@ const (
 	InvalidToggleType  Code = 1005
 	InvalidToggleValue Code = 1006
 
-	ReqGroupExist        Code = 1007
-	ReqGroupNotExist     Code = 1008
+	ReqGroupNotExist     Code = 1007
+	ReqGroupExist        Code = 1008
 	InvalidOperationType Code = 1009
 
 	ServerInternalError Code = 5000

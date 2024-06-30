@@ -4,14 +4,17 @@ import (
 	"feature-distributor/common/value"
 	"feature-distributor/endpoint/grpc"
 	"feature-distributor/endpoint/pb"
+	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 var get gin.HandlerFunc = func(c *gin.Context) {
 	var t toggleId
 	err := c.ShouldBindQuery(&t)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	client := grpc.GetToggleClient()

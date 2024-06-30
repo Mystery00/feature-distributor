@@ -28,7 +28,7 @@ func errorHandle(ctx context.Context, method string, req, reply any, cc *grpc.Cl
 func HandleGRPCError(ctx *gin.Context, err error) {
 	if c := alert.Convert(err); c != nil {
 		e := ReturnErrorMessage(*c)
-		resp.Fail(ctx, e.Status, e.Msg)
+		resp.FailTrans(ctx, e.Status, e.MessageId)
 	} else {
 		resp.Err(ctx, 500, err)
 	}

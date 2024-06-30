@@ -6,6 +6,7 @@ import (
 	"feature-distributor/endpoint/pb"
 	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type CreateReq struct {
@@ -30,18 +31,19 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 	var req CreateReq
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		resp.Err(c, 400, err)
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	//ValueType检测
 	parseType := value.ParseType(req.ValueType)
 	if parseType == nil {
-		resp.Fail(c, 400, "invalid value type")
+		resp.FailTrans(c, 400, "toggle.invalid.value.type")
 		return
 	}
 	//Values检测
 	if len(req.Values) == 0 {
-		resp.Fail(c, 400, "invalid values")
+		resp.FailTrans(c, 400, "toggle.invalid.value")
 		return
 	}
 	defaultValueIndex := 0
@@ -49,21 +51,21 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 	for i, v := range req.Values {
 		if v.Default {
 			if defaultValueIndex != 0 {
-				resp.Fail(c, 400, "duplicate default value")
+				resp.FailTrans(c, 400, "toggle.duplicate.default.value")
 				return
 			}
 			defaultValueIndex = i + 1
 		}
 		if v.DisabledValue {
 			if disabledValueIndex != 0 {
-				resp.Fail(c, 400, "duplicate disabled value")
+				resp.FailTrans(c, 400, "toggle.duplicate.disabled.value")
 				return
 			}
 			disabledValueIndex = i + 1
 		}
 	}
 	if disabledValueIndex == 0 {
-		resp.Fail(c, 400, "disabled value not found")
+		resp.FailTrans(c, 400, "toggle.disabled.value.not.found")
 		return
 	}
 	//保存数据

@@ -1,7 +1,9 @@
 package resp
 
 import (
+	"feature-distributor/endpoint/i18n"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -9,6 +11,10 @@ type Result struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 	Data any    `json:"data"`
+}
+
+func FailTrans(c *gin.Context, code int, id string) {
+	Fail(c, code, i18n.Translate(c, id))
 }
 
 func Fail(c *gin.Context, code int, message string) {
@@ -21,6 +27,7 @@ func Fail(c *gin.Context, code int, message string) {
 }
 
 func Err(c *gin.Context, code int, err error) {
+	logrus.Errorf("error: %v", err)
 	c.JSON(code, Result{
 		Code: code,
 		Msg:  err.Error(),

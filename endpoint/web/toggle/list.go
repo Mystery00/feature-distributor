@@ -5,6 +5,7 @@ import (
 	"feature-distributor/endpoint/pb"
 	"feature-distributor/endpoint/web/resp"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type page struct {
@@ -17,7 +18,8 @@ var list gin.HandlerFunc = func(c *gin.Context) {
 	var p page
 	err := c.ShouldBindQuery(&p)
 	if err != nil {
-		resp.Err(c, 400, err)
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
 	client := grpc.GetToggleClient()

@@ -6,26 +6,31 @@ import (
 )
 
 type ErrorResp struct {
-	Status int
-	Msg    string
+	Status    int
+	MessageId string
 }
 
 var errorCodeMap = map[alert.Code]ErrorResp{
-	alert.InvalidParams:      {Status: http.StatusBadRequest, Msg: "参数错误"},
-	alert.ProjectNotExist:    {Status: http.StatusBadRequest, Msg: "项目不存在"},
-	alert.ProjectExist:       {Status: http.StatusBadRequest, Msg: "项目已存在"},
-	alert.ToggleNotExist:     {Status: http.StatusBadRequest, Msg: "配置项不存在"},
-	alert.ToggleExist:        {Status: http.StatusBadRequest, Msg: "配置项已存在"},
-	alert.InvalidToggleType:  {Status: http.StatusBadRequest, Msg: "配置项类型错误"},
-	alert.InvalidToggleValue: {Status: http.StatusBadRequest, Msg: "配置参数不合法"},
+	alert.ServerInternalError: {Status: http.StatusInternalServerError, MessageId: "common.server.error"},
+	alert.InvalidParams:       {Status: http.StatusBadRequest, MessageId: "common.invalid.params"},
 
-	alert.ServerInternalError: {Status: http.StatusInternalServerError, Msg: "服务器内部错误"},
+	alert.ProjectNotExist: {Status: http.StatusBadRequest, MessageId: "project.not.exist"},
+	alert.ProjectExist:    {Status: http.StatusBadRequest, MessageId: "project.exist"},
+
+	alert.ToggleNotExist:     {Status: http.StatusBadRequest, MessageId: "toggle.not.exist"},
+	alert.ToggleExist:        {Status: http.StatusBadRequest, MessageId: "toggle.exist"},
+	alert.InvalidToggleType:  {Status: http.StatusBadRequest, MessageId: "toggle.invalid.value.type"},
+	alert.InvalidToggleValue: {Status: http.StatusBadRequest, MessageId: "toggle.invalid.value"},
+
+	alert.ReqGroupNotExist:     {Status: http.StatusBadRequest, MessageId: "req-group.not.exist"},
+	alert.ReqGroupExist:        {Status: http.StatusBadRequest, MessageId: "req-group.exist"},
+	alert.InvalidOperationType: {Status: http.StatusBadRequest, MessageId: "req-group.invalid.operation.type"},
 }
 
 func ReturnErrorMessage(code alert.Code) ErrorResp {
 	s, exist := errorCodeMap[code]
 	if !exist {
-		return ErrorResp{Status: http.StatusInternalServerError, Msg: "未知错误"}
+		return ErrorResp{Status: http.StatusInternalServerError, MessageId: "common.unknown.error"}
 	}
 	return s
 }

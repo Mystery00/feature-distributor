@@ -1,0 +1,26 @@
+[common]
+health = "服务运行正常"
+server.error = "服务器内部错误"
+unknown.error = "未知错误"
+invalid.params = "参数错误"
+
+[user]
+wrong.password = "用户名或密码错误"
+
+[project]
+not.exist = "项目不存在"
+exist = "项目已存在"
+
+[toggle]
+not.exist = "配置项不存在"
+exist = "配置项已存在"
+invalid.value.type = "配置项类型错误"
+invalid.value = "配置参数不合法"
+duplicate.default.value = "默认值重复"
+duplicate.disabled.value = "禁用值重复"
+disabled.value.not.found = "未找到禁用值"
+
+[req-group]
+not.exist = "请求分组不存在"
+exist = "请求分组已存在"
+invalid.operation.type = "操作类型错误"
