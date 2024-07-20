@@ -45,7 +45,39 @@ func (r ReqGroupServer) ListReqGroup(ctx context.Context, in *pb.ListReqGroupReq
 }
 
 func (r ReqGroupServer) GetReqGroup(ctx context.Context, in *pb.GetReqGroupRequest) (*pb.ReqGroup, error) {
-	return nil, nil
+	rg := query.ReqGroup
+	rgo := query.ReqGroupOption
+	rgc := rg.WithContext(ctx)
+	rgoc := rgo.WithContext(ctx)
+
+	reqGroup, err := rgc.Where(rg.GroupID.Eq(in.GetGroupId())).First()
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	if reqGroup == nil || errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, alert.Error(alert.ReqGroupNotExist)
+	}
+	//查询选项
+	options, err := rgoc.Where(rgo.GroupID.Eq(in.GetGroupId())).Order(rgo.ListNum).Find()
+	if err != nil {
+		return nil, err
+	}
+	resultOptions := make([]*pb.ReqGroupOption, 0, len(options))
+	for _, option := range options {
+		resultOptions = append(resultOptions, &pb.ReqGroupOption{
+			Index:         option.ListNum,
+			AttrType:      enum.AttributeTypeEnum(option.AttributeType).String(),
+			AttrName:      option.AttributeName,
+			OperationType: enum.OperationTypeEnum(option.OperationType).String(),
+			AttrValue:     option.AttributeValue,
+		})
+	}
+	return &pb.ReqGroup{
+		Title:       reqGroup.Title,
+		Key:         reqGroup.Key,
+		Description: reqGroup.Description,
+		Options:     resultOptions,
+	}, nil
 }
 
 func (r ReqGroupServer) CreateReqGroup(ctx context.Context, in *pb.ReqGroup) (*pb.ReqGroupOperationResponse, error) {
