@@ -4,6 +4,7 @@ service ReqGroupService {
   rpc ListReqGroup(ListReqGroupRequest) returns (ListReqGroupResponse);
   rpc GetReqGroup(GetReqGroupRequest) returns (ReqGroup);
   rpc CreateReqGroup(ReqGroup) returns (ReqGroupOperationResponse);
+  rpc UpdateReqGroup(UpdateReqGroupRequest) returns (ReqGroupOperationResponse);
   rpc DeleteReqGroup(GetReqGroupRequest) returns (ReqGroupOperationResponse);
 }
 
@@ -29,11 +30,19 @@ message ReqGroupOperationResponse{
 message ListReqGroupRequest{
   int64 index = 1;
   int64 size = 2;
+  optional string key = 3;
+  optional string keywords = 4;
 }
 
 message ListReqGroupResponse{
   int64 total = 1;
   repeated ListItemReqGroup groups = 2;
+}
+
+message UpdateReqGroupRequest{
+  int64 groupId = 1;
+  string title = 2;
+  string description = 3;
 }
 
 message GetReqGroupRequest{

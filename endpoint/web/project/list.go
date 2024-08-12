@@ -9,7 +9,7 @@ import (
 
 var list gin.HandlerFunc = func(c *gin.Context) {
 	client := grpc.GetCoreClient()
-	response, err := client.ListProjects(c.Request.Context(), &pb.PageRequest{
+	response, err := client.ListProjects(c, &pb.PageRequest{
 		Index: 1,
 		Size:  100,
 	})

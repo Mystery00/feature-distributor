@@ -59,7 +59,7 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 			AttrValue:     o.AttrValue,
 		})
 	}
-	reqGroup, err := client.CreateReqGroup(c.Request.Context(), &pb.ReqGroup{
+	reqGroup, err := client.CreateReqGroup(c, &pb.ReqGroup{
 		Title:       req.Title,
 		Key:         req.Key,
 		Description: req.Description,

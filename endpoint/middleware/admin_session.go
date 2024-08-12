@@ -44,7 +44,7 @@ var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	key := fmt.Sprintf("session:%s", authorization)
-	value, err := redis.Get(c.Request.Context(), key)
+	value, err := redis.Get(c, key)
 	if err != nil {
 		resp.Err(c, 500, err)
 		return
@@ -53,7 +53,7 @@ var adminSessionMiddleware gin.HandlerFunc = func(c *gin.Context) {
 		resp.Fail(c, 401, "Unauthorized")
 		return
 	}
-	err = redis.Expire(c.Request.Context(), key, constants.UserSessionExpire)
+	err = redis.Expire(c, key, constants.UserSessionExpire)
 	if err != nil {
 		resp.Err(c, 500, err)
 		return

@@ -17,7 +17,7 @@ var remove gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetToggleClient()
-	_, err = client.DeleteToggle(c.Request.Context(), &pb.GetToggleRequest{
+	_, err = client.DeleteToggle(c, &pb.GetToggleRequest{
 		Id: t.Id,
 	})
 	if err != nil {

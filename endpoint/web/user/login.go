@@ -30,7 +30,7 @@ var login gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetUserClient()
-	response, err := client.CheckLogin(c.Request.Context(), &pb.CheckLoginRequest{
+	response, err := client.CheckLogin(c, &pb.CheckLoginRequest{
 		Username: req.Username,
 		Password: req.Password,
 	})
@@ -52,7 +52,7 @@ var login gin.HandlerFunc = func(c *gin.Context) {
 		resp.Err(c, 500, err)
 		return
 	}
-	err = redis.Set(c.Request.Context(), key, string(sessionJson), constants.UserSessionExpire)
+	err = redis.Set(c, key, string(sessionJson), constants.UserSessionExpire)
 	if err != nil {
 		resp.Err(c, 500, err)
 		return

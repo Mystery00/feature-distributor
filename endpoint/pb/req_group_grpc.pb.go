@@ -22,6 +22,7 @@ const (
 	ReqGroupService_ListReqGroup_FullMethodName   = "/ReqGroupService/ListReqGroup"
 	ReqGroupService_GetReqGroup_FullMethodName    = "/ReqGroupService/GetReqGroup"
 	ReqGroupService_CreateReqGroup_FullMethodName = "/ReqGroupService/CreateReqGroup"
+	ReqGroupService_UpdateReqGroup_FullMethodName = "/ReqGroupService/UpdateReqGroup"
 	ReqGroupService_DeleteReqGroup_FullMethodName = "/ReqGroupService/DeleteReqGroup"
 )
 
@@ -32,6 +33,7 @@ type ReqGroupServiceClient interface {
 	ListReqGroup(ctx context.Context, in *ListReqGroupRequest, opts ...grpc.CallOption) (*ListReqGroupResponse, error)
 	GetReqGroup(ctx context.Context, in *GetReqGroupRequest, opts ...grpc.CallOption) (*ReqGroup, error)
 	CreateReqGroup(ctx context.Context, in *ReqGroup, opts ...grpc.CallOption) (*ReqGroupOperationResponse, error)
+	UpdateReqGroup(ctx context.Context, in *UpdateReqGroupRequest, opts ...grpc.CallOption) (*ReqGroupOperationResponse, error)
 	DeleteReqGroup(ctx context.Context, in *GetReqGroupRequest, opts ...grpc.CallOption) (*ReqGroupOperationResponse, error)
 }
 
@@ -70,6 +72,15 @@ func (c *reqGroupServiceClient) CreateReqGroup(ctx context.Context, in *ReqGroup
 	return out, nil
 }
 
+func (c *reqGroupServiceClient) UpdateReqGroup(ctx context.Context, in *UpdateReqGroupRequest, opts ...grpc.CallOption) (*ReqGroupOperationResponse, error) {
+	out := new(ReqGroupOperationResponse)
+	err := c.cc.Invoke(ctx, ReqGroupService_UpdateReqGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *reqGroupServiceClient) DeleteReqGroup(ctx context.Context, in *GetReqGroupRequest, opts ...grpc.CallOption) (*ReqGroupOperationResponse, error) {
 	out := new(ReqGroupOperationResponse)
 	err := c.cc.Invoke(ctx, ReqGroupService_DeleteReqGroup_FullMethodName, in, out, opts...)
@@ -86,6 +97,7 @@ type ReqGroupServiceServer interface {
 	ListReqGroup(context.Context, *ListReqGroupRequest) (*ListReqGroupResponse, error)
 	GetReqGroup(context.Context, *GetReqGroupRequest) (*ReqGroup, error)
 	CreateReqGroup(context.Context, *ReqGroup) (*ReqGroupOperationResponse, error)
+	UpdateReqGroup(context.Context, *UpdateReqGroupRequest) (*ReqGroupOperationResponse, error)
 	DeleteReqGroup(context.Context, *GetReqGroupRequest) (*ReqGroupOperationResponse, error)
 	mustEmbedUnimplementedReqGroupServiceServer()
 }
@@ -102,6 +114,9 @@ func (UnimplementedReqGroupServiceServer) GetReqGroup(context.Context, *GetReqGr
 }
 func (UnimplementedReqGroupServiceServer) CreateReqGroup(context.Context, *ReqGroup) (*ReqGroupOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateReqGroup not implemented")
+}
+func (UnimplementedReqGroupServiceServer) UpdateReqGroup(context.Context, *UpdateReqGroupRequest) (*ReqGroupOperationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReqGroup not implemented")
 }
 func (UnimplementedReqGroupServiceServer) DeleteReqGroup(context.Context, *GetReqGroupRequest) (*ReqGroupOperationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteReqGroup not implemented")
@@ -173,6 +188,24 @@ func _ReqGroupService_CreateReqGroup_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReqGroupService_UpdateReqGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateReqGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReqGroupServiceServer).UpdateReqGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReqGroupService_UpdateReqGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReqGroupServiceServer).UpdateReqGroup(ctx, req.(*UpdateReqGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReqGroupService_DeleteReqGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetReqGroupRequest)
 	if err := dec(in); err != nil {
@@ -209,6 +242,10 @@ var ReqGroupService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateReqGroup",
 			Handler:    _ReqGroupService_CreateReqGroup_Handler,
+		},
+		{
+			MethodName: "UpdateReqGroup",
+			Handler:    _ReqGroupService_UpdateReqGroup_Handler,
 		},
 		{
 			MethodName: "DeleteReqGroup",

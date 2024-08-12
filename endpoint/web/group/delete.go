@@ -17,7 +17,7 @@ var remove gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetReqGroupClient()
-	_, err = client.DeleteReqGroup(c.Request.Context(), &pb.GetReqGroupRequest{
+	_, err = client.DeleteReqGroup(c, &pb.GetReqGroupRequest{
 		GroupId: t.GroupId,
 	})
 	if err != nil {

@@ -27,7 +27,7 @@ var toggle gin.HandlerFunc = func(c *gin.Context) {
 	}
 	valueType := strings.ToLower(t.ToggleType)
 	client := grpc.GetToggleClient()
-	response, err := client.GetToggleValue(c.Request.Context(), &pb.GetToggleValueRequest{
+	response, err := client.GetToggleValue(c, &pb.GetToggleValueRequest{
 		ReqUser:    t.ReqUser.buildReqUser(),
 		ProjectKey: projectKey,
 		ToggleKey:  t.ToggleKey,

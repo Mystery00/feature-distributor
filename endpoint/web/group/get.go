@@ -18,7 +18,7 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetReqGroupClient()
-	reqGroup, err := client.GetReqGroup(c.Request.Context(), &pb.GetReqGroupRequest{
+	reqGroup, err := client.GetReqGroup(c, &pb.GetReqGroupRequest{
 		GroupId: t.GroupId,
 	})
 	if err != nil {

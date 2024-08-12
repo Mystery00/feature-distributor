@@ -78,7 +78,7 @@ var create gin.HandlerFunc = func(c *gin.Context) {
 			Description: v.Description,
 		})
 	}
-	toggle, err := client.CreateToggle(c.Request.Context(), &pb.CreateToggleRequest{
+	toggle, err := client.CreateToggle(c, &pb.CreateToggleRequest{
 		ProjectId:     req.ProjectId,
 		Enabled:       req.Enabled,
 		Title:         req.Title,

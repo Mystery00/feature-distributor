@@ -10,6 +10,7 @@ import (
 	"feature-distributor/core/db/model"
 	"feature-distributor/core/db/query"
 	"feature-distributor/core/pb"
+	"fmt"
 	"gorm.io/gorm"
 	"sort"
 )
@@ -21,9 +22,16 @@ type ReqGroupServer struct {
 func (r ReqGroupServer) ListReqGroup(ctx context.Context, in *pb.ListReqGroupRequest) (*pb.ListReqGroupResponse, error) {
 	rg := query.ReqGroup
 	rgc := rg.WithContext(ctx)
+	where := rgc
+	if in.Key != nil && in.GetKey() != "" {
+		where = where.Where(rg.Key.Like(fmt.Sprintf("%s%%", in.GetKey())))
+	}
+	if in.Keywords != nil && in.GetKeywords() != "" {
+		where = where.Where(rg.Title.Like(fmt.Sprintf("%%%s%%", in.GetKeywords())))
+	}
 	offset := int((in.GetIndex() - 1) * in.GetSize())
 	limit := int(in.GetSize())
-	list, total, err := rgc.FindByPage(offset, limit)
+	list, total, err := where.FindByPage(offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +152,29 @@ func (r ReqGroupServer) CreateReqGroup(ctx context.Context, in *pb.ReqGroup) (*p
 	}
 	return &pb.ReqGroupOperationResponse{
 		GroupId: reqGroup.GroupID,
+	}, nil
+}
+
+func (r ReqGroupServer) UpdateReqGroup(ctx context.Context, in *pb.UpdateReqGroupRequest) (*pb.ReqGroupOperationResponse, error) {
+	rg := query.ReqGroup
+	rgc := rg.WithContext(ctx)
+
+	_, err := rgc.Where(rg.GroupID.Eq(in.GetGroupId())).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, alert.Error(alert.ReqGroupNotExist)
+		}
+		return nil, err
+	}
+	_, err = rgc.Where(rg.GroupID.Eq(in.GetGroupId())).Updates(&model.ReqGroup{
+		Title:       in.GetTitle(),
+		Description: in.GetDescription(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &pb.ReqGroupOperationResponse{
+		GroupId: in.GetGroupId(),
 	}, nil
 }
 

@@ -17,7 +17,7 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	project, err := client.GetProject(c.Request.Context(), &pb.ProjectRequest{
+	project, err := client.GetProject(c, &pb.ProjectRequest{
 		Id: p.Id,
 	})
 	if err != nil {

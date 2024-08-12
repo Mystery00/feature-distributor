@@ -23,7 +23,7 @@ var save gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	project, err := client.SaveProject(c.Request.Context(), &pb.SaveProjectRequest{
+	project, err := client.SaveProject(c, &pb.SaveProjectRequest{
 		ProjectId: req.Id,
 		Name:      req.Name,
 		Key:       req.Key,

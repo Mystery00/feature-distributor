@@ -21,7 +21,7 @@ var serverMiddleware gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	project, err := client.CheckProject(c.Request.Context(), &pb.CheckProjectRequest{
+	project, err := client.CheckProject(c, &pb.CheckProjectRequest{
 		ServerKey: &serverKey,
 	})
 	if err != nil {

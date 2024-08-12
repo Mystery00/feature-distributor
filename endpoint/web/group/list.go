@@ -13,6 +13,11 @@ type page struct {
 	Size  int `form:"size" required:"true" binding:"required"`
 }
 
+type ListReq struct {
+	Key      *string `json:"key"`
+	Keywords *string `json:"keywords"`
+}
+
 var list gin.HandlerFunc = func(c *gin.Context) {
 	var p page
 	err := c.ShouldBindQuery(&p)
@@ -21,10 +26,19 @@ var list gin.HandlerFunc = func(c *gin.Context) {
 		resp.FailTrans(c, 400, "common.invalid.params")
 		return
 	}
+	var req ListReq
+	err = c.ShouldBindJSON(&req)
+	if err != nil {
+		logrus.Info("invalid params", err)
+		resp.FailTrans(c, 400, "common.invalid.params")
+		return
+	}
 	client := grpc.GetReqGroupClient()
-	response, err := client.ListReqGroup(c.Request.Context(), &pb.ListReqGroupRequest{
-		Index: int64(p.Index),
-		Size:  int64(p.Size),
+	response, err := client.ListReqGroup(c, &pb.ListReqGroupRequest{
+		Index:    int64(p.Index),
+		Size:     int64(p.Size),
+		Key:      req.Key,
+		Keywords: req.Keywords,
 	})
 	if err != nil {
 		grpc.HandleGRPCError(c, err)

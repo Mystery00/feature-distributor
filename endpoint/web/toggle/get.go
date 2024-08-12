@@ -18,7 +18,7 @@ var get gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetToggleClient()
-	toggle, err := client.GetToggle(c.Request.Context(), &pb.GetToggleRequest{
+	toggle, err := client.GetToggle(c, &pb.GetToggleRequest{
 		Id: t.Id,
 	})
 	if err != nil {

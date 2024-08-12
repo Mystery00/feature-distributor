@@ -25,7 +25,7 @@ var toggle gin.HandlerFunc = func(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	value, err := getToggle(c.Request.Context(), t.ReqUser, projectKey, t.ToggleKey, t.ToggleType)
+	value, err := getToggle(c, t.ReqUser, projectKey, t.ToggleKey, t.ToggleType)
 	if err != nil {
 		grpc.HandleGRPCError(c, err)
 		return

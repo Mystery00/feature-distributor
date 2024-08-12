@@ -17,7 +17,7 @@ var remove gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetCoreClient()
-	_, err = client.DeleteProject(c.Request.Context(), &pb.ProjectRequest{
+	_, err = client.DeleteProject(c, &pb.ProjectRequest{
 		Id: p.Id,
 	})
 	if err != nil {

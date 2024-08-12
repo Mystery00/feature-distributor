@@ -23,7 +23,7 @@ var list gin.HandlerFunc = func(c *gin.Context) {
 		return
 	}
 	client := grpc.GetToggleClient()
-	response, err := client.ListToggle(c.Request.Context(), &pb.ListToggleRequest{
+	response, err := client.ListToggle(c, &pb.ListToggleRequest{
 		ProjectId: p.ProjectId,
 		Index:     int64(p.Index),
 		Size:      int64(p.Size),
