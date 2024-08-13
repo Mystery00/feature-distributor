@@ -5,6 +5,7 @@ service ReqGroupService {
   rpc GetReqGroup(GetReqGroupRequest) returns (ReqGroup);
   rpc CreateReqGroup(ReqGroup) returns (ReqGroupOperationResponse);
   rpc UpdateReqGroup(UpdateReqGroupRequest) returns (ReqGroupOperationResponse);
+  rpc UpdateReqGroupOption(UpdateReqGroupOptionRequest) returns (ReqGroupOperationResponse);
   rpc DeleteReqGroup(GetReqGroupRequest) returns (ReqGroupOperationResponse);
 }
 
@@ -43,6 +44,11 @@ message UpdateReqGroupRequest{
   int64 groupId = 1;
   string title = 2;
   string description = 3;
+}
+
+message UpdateReqGroupOptionRequest {
+  int64 groupId = 1;
+  repeated ReqGroupOption options = 2;
 }
 
 message GetReqGroupRequest{

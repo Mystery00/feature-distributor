@@ -178,6 +178,66 @@ func (r ReqGroupServer) UpdateReqGroup(ctx context.Context, in *pb.UpdateReqGrou
 	}, nil
 }
 
+func (r ReqGroupServer) UpdateReqGroupOption(ctx context.Context, in *pb.UpdateReqGroupOptionRequest) (*pb.ReqGroupOperationResponse, error) {
+	rg := query.ReqGroup
+	rgo := query.ReqGroupOption
+	rgc := rg.WithContext(ctx)
+	rgoc := rgo.WithContext(ctx)
+
+	//检测数据
+	_, err := rgc.Where(rg.GroupID.Eq(in.GetGroupId())).First()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, alert.Error(alert.ReqGroupNotExist)
+		}
+		return nil, err
+	}
+	for _, option := range in.GetOptions() {
+		operationType := operation.ParseType(option.GetOperationType())
+		attributeType := attribute.ParseType(option.GetAttrType())
+		if !operationType.ForAttributeType(*attributeType) {
+			return nil, alert.Error(alert.InvalidOperationType)
+		}
+	}
+	//对option按照index做一下排序
+	indexedOptions := make(map[int][]*pb.ReqGroupOption)
+	for _, option := range in.GetOptions() {
+		indexedOptions[int(option.GetIndex())] = append(indexedOptions[int(option.GetIndex())], option)
+	}
+	indexs := make([]int, 0)
+	for i := range indexedOptions {
+		indexs = append(indexs, i)
+	}
+	sort.Ints(indexs)
+	//保存数据
+	_, err = rgoc.Where(rgo.GroupID.Eq(in.GetGroupId())).Delete()
+	if err != nil {
+		return nil, err
+	}
+	options := make([]*model.ReqGroupOption, 0)
+	for _, index := range indexs {
+		list := indexedOptions[index]
+		for _, option := range list {
+			reqGroupOption := &model.ReqGroupOption{
+				GroupID:        in.GetGroupId(),
+				ListNum:        int64(index),
+				AttributeType:  int8(enum.ParseAttributeType(option.GetAttrType())),
+				AttributeName:  option.GetAttrName(),
+				OperationType:  int8(enum.ParseOperationType(option.GetOperationType())),
+				AttributeValue: option.GetAttrValue(),
+			}
+			err := rgoc.Save(reqGroupOption)
+			if err != nil {
+				return nil, err
+			}
+			options = append(options, reqGroupOption)
+		}
+	}
+	return &pb.ReqGroupOperationResponse{
+		GroupId: in.GetGroupId(),
+	}, nil
+}
+
 func (r ReqGroupServer) DeleteReqGroup(ctx context.Context, in *pb.GetReqGroupRequest) (*pb.ReqGroupOperationResponse, error) {
 	rg := query.ReqGroup
 	rgo := query.ReqGroupOption
